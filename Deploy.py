@@ -122,7 +122,7 @@ def __PrintConfiguration(configuration):
             handler.PrintConfiguration(configuration)
 
 
-def __PrintHelp(configuration):
+def __PrintHelp(configuration = None):
     print ''
     print 'Command line options:'
     print 'ipy Deploy.py <configuration file> Deploy [--skip-database]'
@@ -134,9 +134,11 @@ def __PrintHelp(configuration):
     print 'ipy Deploy.py <configuration file> Info'
     print 'ipy Deploy.py <configuration file> Help'
 
-    for handler in configuration.Modules.values():
-        handler.PrintHelp()
-    
+    if configuration is not None:
+
+        for handler in configuration.Modules.values():
+            handler.PrintHelp()
+        
 
 def ParseArguments():
     action = Action.Empty
@@ -198,7 +200,7 @@ def main():
         configuration = ReadConfiguration(sys.argv[1])
 
         if action == Action.Empty or action & Action.Help:
-            __PrintHelp(configuration)
+            __PrintHelp(configuration = configuration)
             return
 
         if action & Action.Info:
@@ -211,8 +213,9 @@ def main():
             handler.Execute(configuration, action)
 
     except Exception, e:
-        print 'python exception:'
         print e
+
+        __PrintHelp()
 
         return 1
 
