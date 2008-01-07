@@ -117,22 +117,25 @@ class DeployMsSqlModule(DeployDatabaseModule):
 
 
         builder = System.Text.StringBuilder()
-    #
-    #    builder.AppendFormat("if not exists (select * from sys.server_principals where name = N'{0}')", configuration.Database.UserName)
-    #    builder.AppendFormat("create login [{0}] with password = N'{1}' else alter login [{0}] with password = N'{1}'", configuration.Database.UserName, configuration.Database.Password)
-    #    commands.append(builder.ToString())
-    #
-    #    builder.Length = 0
-    #
-    #    builder.AppendFormat("if not exists (select * from [{0}].sys.database_principals where name = N'{1}')", configuration.Database.Name, configuration.Database.UserName)
-    #    builder.AppendFormat("create user [{0}] for login [{0}]", configuration.Database.UserName)
-    #    commands.append(builder.ToString())
-    #
 
-        builder.Length = 0
+        if configuration.Database.UserName is not None and configuration.Database.Password is not None:
+            builder.AppendFormat("if not exists (select * from sys.server_principals where name = N'{0}')", configuration.Database.UserName)
+            builder.AppendFormat("create login [{0}] with password = N'{1}' else alter login [{0}] with password = N'{1}'", configuration.Database.UserName, configuration.Database.Password)
+            commands.append(builder.ToString())
 
-        # builder.AppendFormat("execute sp_addrolemember N'db_owner', N'{0}'", configuration.Database.UserName)
-        builder.AppendFormat("execute sp_addrolemember N'db_owner', N'{0}'", 'NT AUTHORITY\NETWORK SERVICE')
+            builder.Length = 0
+
+            builder.AppendFormat("if not exists (select * from [{0}].sys.database_principals where name = N'{1}')", configuration.Database.Name, configuration.Database.UserName)
+            builder.AppendFormat("create user [{0}] for login [{0}]", configuration.Database.UserName)
+            commands.append(builder.ToString())
+
+
+            builder.AppendFormat("execute sp_addrolemember N'db_owner', N'{0}'", configuration.Database.UserName)
+
+        else:
+            builder.AppendFormat("execute sp_addrolemember N'db_owner', N'{0}'", 'NT AUTHORITY\NETWORK SERVICE')
+
+
         commands.append(builder.ToString())
 
         try:
@@ -179,7 +182,6 @@ class DeployMsSqlModule(DeployDatabaseModule):
 
                     for sqlCommand in sql.split('\ngo\n'):
                         try:
-                            # print 'DEBUG: %s' % (sqlCommand)
                             command = connection.CreateCommand()
                             command.CommandText = sqlCommand 
                             command.ExecuteNonQuery()

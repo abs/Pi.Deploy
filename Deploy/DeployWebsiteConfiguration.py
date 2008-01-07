@@ -28,17 +28,6 @@ class WebsiteConfiguration(object):
         self.TargetRoot = None
         self.SourceConfig = None
         self.SourceRoot = None
-        self.PassportUrl = None
-        self.SignInUrl = None
-        self.SignInImage = None
-        self.SignOutUrl = None
-        self.SignOutImage = None
-        self.CaptchaEnabled = None
-
-        self.CaptchaForeColor = None
-        self.CaptchaBgColor = None
-        self.CaptchaWidth = None
-        self.CaptchaHeight = None
         
         self.Authentication = None
 
