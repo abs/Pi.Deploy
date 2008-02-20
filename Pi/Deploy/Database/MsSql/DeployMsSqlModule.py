@@ -17,7 +17,7 @@ import System.Diagnostics
 import System.Text
 import System.Xml
 
-from Pi.Deploy.DeployDatabaseModule import DeployDatabaseModule
+from Pi.Deploy.Database.DeployDatabaseModule import DeployDatabaseModule
 
 
 class DeployMsSqlModule(DeployDatabaseModule):
