@@ -1,6 +1,6 @@
 #
 # (c) Peralta Informatics 2007
-# $Id: DeployDatabaseConfiguration.py 116 2007-12-18 07:31:56Z andrei $
+# $Id: DeployDatabaseConfiguration.py 299 2008-01-19 08:42:05Z andrei $
 #
 
 import clr
@@ -21,5 +21,5 @@ class DatabaseConfiguration(object):
         self.Hooks = System.Collections.Generic.List[DatabaseConfiguration.HookConfiguration]()
         self.CreateOnce = 'False'
         self.Driver = None
-        self.Modules = []
+        self.Modules = {}
 

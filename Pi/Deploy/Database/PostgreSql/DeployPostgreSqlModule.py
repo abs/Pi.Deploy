@@ -1,6 +1,6 @@
 #
 # (c) Peralta Informatics 2007
-# $Id: DeployPostgreSqlModule.py 229 2008-01-01 00:50:52Z andrei $
+# $Id: DeployPostgreSqlModule.py 302 2008-01-21 09:36:01Z andrei $
 #
 
 import clr
@@ -17,11 +17,10 @@ import System.Diagnostics
 import System.Text
 import System.Xml
 
-import DeployUtilities
+from Pi.Deploy import DeployUtilities
 
-import DeployDatabaseModule
-from DeployDatabaseModule import DeployDatabaseModule
-from DeployDatabaseConfiguration import DatabaseConfiguration
+from Pi.Deploy.Database.DeployDatabaseModule import DeployDatabaseModule
+from Pi.Deploy.Database.DeployDatabaseConfiguration import DatabaseConfiguration
 
 NpgsqlLocationAttributeName = 'NpgsqlLocation'
 
@@ -217,6 +216,9 @@ class DeployPostgreSqlModule(DeployDatabaseModule):
             scriptPath = DeployUtilities.ExpandEnvironmentVariables(encodedScriptPath)
 
             DeployUtilities.RunExternalCommand('psql', '-q -d %s -h %s -U %s -f %s' % (configuration.Name, configuration.Server, configuration.UserName, encodedScriptPath), environmentVariables = environmentVariables)
+
+        for module in configuration.Modules.values():
+            module.PopulateDatabase(configuration)
 
 
 def main():

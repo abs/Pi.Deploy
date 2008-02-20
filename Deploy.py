@@ -19,15 +19,16 @@ import System.Collections.Generic
 import System.Text
 import System.Xml
 
+# sys.path.append("Deploy")
+
 PI_DEPLOY_HOME=os.environ.get('PI_DEPLOY_HOME')
-sys.path.append('%s/Deploy' % (PI_DEPLOY_HOME))
+sys.path.append('%s/Pi' % (PI_DEPLOY_HOME))
 
-import DeployUtilities
-import DeployModule
+from Pi.Deploy import DeployUtilities
+from Pi.Deploy import DeployModule
 
-from DeployAction import Action
-from DeployConfiguration import Configuration
-
+from Pi.Deploy.DeployAction import Action
+from Pi.Deploy.DeployConfiguration import Configuration
 
 DeployNamespaceUri                      = 'http://schemas.peralta-informatics.com/Deploy/2007'
 
@@ -52,9 +53,23 @@ def ReadModule(reader, modules):
     if handler is not None and namespace is not None:
 
         if reader.MoveToAttribute(DepImportAttributeName):
-            
             moduleName = reader.ReadContentAsString()
-            moduleInfo = imp.find_module(moduleName)
+            print moduleName
+
+            print '0'
+            components = moduleName.split('.')
+
+            name = components[len(components) - 1]
+
+            print name
+
+            sep = moduleName.replace('.', '/').rfind('/')
+
+            print moduleName.replace('.', '/')[0:sep]
+
+            moduleInfo = imp.find_module(name, ['%s/%s' % (PI_DEPLOY_HOME, moduleName.replace('.', '/')[0:sep]), '.'])
+
+            print '1'
 
             module = imp.load_module(moduleName, moduleInfo[0], moduleInfo[1], moduleInfo[2])
 
@@ -123,7 +138,7 @@ def __PrintConfiguration(configuration):
             handler.PrintConfiguration(configuration)
 
 
-def __PrintHelp(configuration = None):
+def __PrintHelp(configuration):
     print ''
     print 'Command line options:'
     print 'ipy Deploy.py <configuration file> Deploy [--skip-database]'
@@ -135,11 +150,9 @@ def __PrintHelp(configuration = None):
     print 'ipy Deploy.py <configuration file> Info'
     print 'ipy Deploy.py <configuration file> Help'
 
-    if configuration is not None:
-
-        for handler in configuration.Modules.values():
-            handler.PrintHelp()
-        
+    for handler in configuration.Modules.values():
+        handler.PrintHelp()
+    
 
 def ParseArguments():
     action = Action.Empty
@@ -201,7 +214,7 @@ def main():
         configuration = ReadConfiguration(sys.argv[1])
 
         if action == Action.Empty or action & Action.Help:
-            __PrintHelp(configuration = configuration)
+            __PrintHelp(configuration)
             return
 
         if action & Action.Info:
@@ -214,10 +227,10 @@ def main():
             handler.Execute(configuration, action)
 
     except Exception, e:
+        print 'python exception:'
+    
         print e
-
-        __PrintHelp()
-
+    
         return 1
 
     except System.Exception, e:

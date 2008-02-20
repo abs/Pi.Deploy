@@ -1,6 +1,6 @@
 #
 # (c) Peralta Informatics 2007
-# $Id: DeployWebModule.py 154 2007-12-22 08:46:05Z andrei $
+# $Id: DeployWebModule.py 299 2008-01-19 08:42:05Z andrei $
 #
 
 import clr
@@ -20,10 +20,10 @@ import datetime
 
 from os import path
 
-from DeployAction import Action
-from DeployConfiguration import Configuration
-from DeployModule import DeployModule
-from DeployWebsiteConfiguration import WebsiteConfiguration
+from Pi.Deploy.DeployAction import Action
+from Pi.Deploy.DeployConfiguration import Configuration
+from Pi.Deploy.DeployModule import DeployModule
+from Pi.Deploy.Web.DeployWebsiteConfiguration import WebsiteConfiguration
 
 
 DeployWebNamespaceUri                = 'http://schemas.peralta-informatics.com/Deploy/Web/2007'
@@ -122,7 +122,8 @@ class DeployWebModule(DeployModule):
 
                     handler = Configuration.Modules[reader.NamespaceURI]
                     handler.ReadConfiguration(reader, website)
-                    website.Modules.append(handler)
+
+                    website.Modules[reader.NamespaceURI] = handler
 
                 
     def __ReadScriptMap(self, reader):
@@ -212,16 +213,16 @@ class DeployWebModule(DeployModule):
 
                 for database in website.Databases:
 
-                    for module in website.Modules:
+                    for module in website.Modules.values():
                         
                         if hasattr(module, 'CreateConnectionString'):
                             addElement = webConfigDocument.CreateElement('add')
-                            addElement.SetAttribute('name', '%s' % (website.Databases[0].Name))
+                            addElement.SetAttribute('name', '%s' % (database.Name))
                             addElement.SetAttribute('connectionString', module.CreateConnectionString(database))
 
                             connectionStringsNode.AppendChild(webConfigDocument.ImportNode(addElement, False))
 
-            for module in website.Modules:
+            for module in website.Modules.values():
                 module.CreateWebConfigSections(webConfigDocument, website)
 
             return webConfigDocument
@@ -372,7 +373,7 @@ class DeployWebModule(DeployModule):
                 if action & Action.UpdateWebConfig:
                     self.RecycleAppPool(website)
                 
-                for module in website.Modules:
+                for module in website.Modules.values():
                     module.Execute(website, action)
 
         except System.Exception, e:
@@ -438,7 +439,7 @@ class DeployWebModule(DeployModule):
 
             print '    Modules:'
 
-            for module in website.Modules:
+            for module in website.Modules.values():
                 print '        Module            ' + str(module)
 
                 module.PrintConfiguration(website)

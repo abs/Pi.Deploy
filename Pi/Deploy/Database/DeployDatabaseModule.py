@@ -1,6 +1,6 @@
 #
 # (c) Peralta Informatics 2007
-# $Id: DeployDatabaseModule.py 116 2007-12-18 07:31:56Z andrei $
+# $Id: DeployDatabaseModule.py 299 2008-01-19 08:42:05Z andrei $
 #
 
 import clr
@@ -17,12 +17,13 @@ import System.Diagnostics
 import System.Text
 import System.Xml
 
-import DeployUtilities
+from Pi.Deploy import DeployUtilities
+from Pi.Deploy.DeployConfiguration import Configuration
+from Pi.Deploy.DeployAction import Action
+from Pi.Deploy.DeployModule import DeployModule
 
-from DeployConfiguration import Configuration
-from DeployModule import DeployModule
 from DeployDatabaseConfiguration import DatabaseConfiguration
-from DeployAction import Action
+
 
 
 DeploySqlNamespaceUri                = 'http://schemas.peralta-informatics.com/Deploy/Sql/2007'
@@ -58,7 +59,7 @@ class DeployDatabaseModule(DeployModule):
         
             for database in configuration.Databases:
 
-                for module in database.Modules:
+                for module in database.Modules.values():
                     module.CreateWebConfigSections(document, configuration)
 
 
@@ -122,7 +123,8 @@ class DeployDatabaseModule(DeployModule):
                 if reader.NamespaceURI in Configuration.Modules: 
                     handler = Configuration.Modules[reader.NamespaceURI]
                     handler.ReadConfiguration(reader, database)
-                    database.Modules.append(handler)
+
+                    database.Modules[reader.NamespaceURI] = handler
 
 
     def __ReadHookConfiguration(self, reader, database):
@@ -185,10 +187,14 @@ class DeployDatabaseModule(DeployModule):
         if not hasattr(configuration, 'Databases'):
             return
 
+
         if database == None:
 
             for database in configuration.Databases:        
                 self.__PrintConfiguration(database)
+                
+                for module in database.Modules.values():
+                    module.PrintConfiguration(database)
 
         else:
             self.__PrintConfiguration(database)
@@ -216,7 +222,7 @@ class DeployDatabaseModule(DeployModule):
 
         print '    Modules:'
 
-        for module in database.Modules:
+        for module in database.Modules.values():
             print '        Module:            ' + str(module)
 
             module.PrintConfiguration(database)

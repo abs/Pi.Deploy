@@ -1,6 +1,6 @@
 #
 # (c) Peralta Informatics 2007
-# $Id: DeployWebsiteConfiguration.py 85 2007-12-12 19:25:32Z andrei $
+# $Id: DeployWebsiteConfiguration.py 299 2008-01-19 08:42:05Z andrei $
 #
 
 class WebsiteConfiguration(object):
@@ -28,12 +28,10 @@ class WebsiteConfiguration(object):
         self.TargetRoot = None
         self.SourceConfig = None
         self.SourceRoot = None
-        
         self.Authentication = None
-
         self.Assembly = None
         self.Type = None
-        self.Modules = []
+        self.Modules = {}
 
         self.DirectoriesDictionary = {}
 

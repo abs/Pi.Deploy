@@ -17,8 +17,8 @@ import System.Data.SqlClient
 import System.Text
 import System.Xml
 
-from DeployModule import DeployModule
-from DeployWebModule import DeployWebModule
+from Pi.Deploy.DeployModule import DeployModule
+from Pi.Deploy.Web.DeployWebModule import DeployWebModule
 
 class DeployApacheModule(DeployWebModule):
     def __init__(self): pass

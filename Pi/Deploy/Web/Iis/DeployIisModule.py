@@ -1,6 +1,6 @@
 #
 # (c) Peralta Informatics 2007
-# $Id: DeployIisModule.py 40 2007-12-10 19:30:56Z andrei $
+# $Id: DeployIisModule.py 299 2008-01-19 08:42:05Z andrei $
 #
 
 import clr
@@ -57,7 +57,7 @@ class DeployIisModule(DeployWebModule):
 
                 connectionStringsNode.AppendChild(webConfigDocument.ImportNode(addElement, False))
 
-            for module in website.Modules:
+            for module in website.Modules.values():
                 module.CreateWebConfigSections(webConfigDocument, website.Databases)
 
             return webConfigDocument
