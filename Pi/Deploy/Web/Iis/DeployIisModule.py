@@ -27,7 +27,7 @@ import System.IO
 import System.Text
 import System.Xml
 
-from DeployWebModule import DeployWebModule
+from Pi.Deploy.Web.DeployWebModule import DeployWebModule
 
 
 class DeployIisModule(DeployWebModule):
