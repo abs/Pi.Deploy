@@ -18,6 +18,7 @@ import System.Text
 import System.Xml
 
 from Pi.Deploy.Database.DeployDatabaseModule import DeployDatabaseModule
+from Pi.Deploy import DeployUtilities
 
 
 class DeployMsSqlModule(DeployDatabaseModule):
@@ -26,7 +27,7 @@ class DeployMsSqlModule(DeployDatabaseModule):
         pass
 
 
-    def DatabaseExists(configuration):
+    def DatabaseExists(self, configuration):
         exists = False
 
         connection = System.Data.SqlClient.SqlConnection()
@@ -62,7 +63,7 @@ class DeployMsSqlModule(DeployDatabaseModule):
         return exists
 
 
-    def DropDatabase(configuration):
+    def DropDatabase(self, configuration):
         connection = System.Data.SqlClient.SqlConnection()
         connection.ConnectionString = "Integrated Security=SSPI;Database=master;Server=%s" % (configuration.Server)
 
@@ -98,7 +99,7 @@ class DeployMsSqlModule(DeployDatabaseModule):
             connection.Close()
 
 
-    def BuildDatabase(configuration):
+    def BuildDatabase(self, configuration):
         connection = System.Data.SqlClient.SqlConnection()
         connection.ConnectionString = "Integrated Security=SSPI;Database=master;Server=%s" % (configuration.Server)
 
@@ -158,7 +159,7 @@ class DeployMsSqlModule(DeployDatabaseModule):
             connection.Close()
 
 
-    def PopulateDatabase(configuration):
+    def PopulateDatabase(self, configuration):
         connection = System.Data.SqlClient.SqlConnection()
         connection.ConnectionString = "Integrated Security=SSPI;Database=master;Server=%s" % (configuration.Server)
 
