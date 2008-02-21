@@ -54,25 +54,11 @@ def ReadModule(reader, modules):
 
         if reader.MoveToAttribute(DepImportAttributeName):
             moduleName = reader.ReadContentAsString()
-            print moduleName
-
-            print '0'
             components = moduleName.split('.')
-
             name = components[len(components) - 1]
-
-            print name
-
             sep = moduleName.replace('.', '/').rfind('/')
-
-            print moduleName.replace('.', '/')[0:sep]
-
             moduleInfo = imp.find_module(name, ['%s/%s' % (PI_DEPLOY_HOME, moduleName.replace('.', '/')[0:sep]), '.'])
-
-            print '1'
-
             module = imp.load_module(moduleName, moduleInfo[0], moduleInfo[1], moduleInfo[2])
-
             deployModuleType = type('%sHandler' % (handler), (getattr(module, handler),), {})
 
             if issubclass(deployModuleType, DeployModule.DeployModule):

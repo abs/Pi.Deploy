@@ -13,9 +13,6 @@ import datetime
 
 from os import path
 
-import Deploy
-import DeployDb
-
 clr.AddReference("System.Data")
 clr.AddReference("System.Xml")
 clr.AddReference("System.DirectoryServices")
