@@ -186,6 +186,9 @@ class DeployWebModule(DeployModule):
     def DeleteWebsite(self, website):
         print 'Deleting website ...'
 
+        if hasattr(self, 'DeleteApplication'):
+            self.DeleteApplication(website)
+
         targetRootDirectory = System.IO.DirectoryInfo('%s/%s' % (website.TargetPath, website.ApplicationName))
 
         if targetRootDirectory.Exists is True:
@@ -196,6 +199,10 @@ class DeployWebModule(DeployModule):
 
     def CreateWebsite(self, website):
         print 'Creating website ...'
+
+        if hasattr(self, 'CreateApplication'):
+            self.CreateApplication(website)
+
 
 
     def CreateWebConfig(self, website):
