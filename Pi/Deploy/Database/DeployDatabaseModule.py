@@ -99,7 +99,12 @@ class DeployDatabaseModule(DeployModule):
             database.Password = System.Convert.ToBase64String(System.Guid.NewGuid().ToByteArray())
 
         if reader.MoveToAttribute(CreateOnceAttributeName):
-            database.CreateOnce = reader.ReadContentAsString().capitalize()
+
+            if reader.ReadContentAsString() == 'true':
+                database.CreateOnce = True
+                    
+            else:
+                database.CreateOnce = False
 
         if reader.MoveToAttribute(DriverAttributeName):
             database.Driver = reader.ReadContentAsString()
@@ -173,6 +178,9 @@ class DeployDatabaseModule(DeployModule):
             if action & Action.SkipDatabase: 
                 print 'Skipping database deployment ...'
                 return
+
+            if self.DatabaseExists(database) == True and database.CreateOnce == True:
+                continue
     
             if action & Action.DeleteDatabase:
                 self.DropDatabase(database)
@@ -226,5 +234,4 @@ class DeployDatabaseModule(DeployModule):
             print '        Module:            ' + str(module)
 
             module.PrintConfiguration(database)
-
 
