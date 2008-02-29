@@ -55,7 +55,7 @@ class DeployIisModule(DeployWebModule):
                 connectionStringsNode.AppendChild(webConfigDocument.ImportNode(addElement, False))
 
             for module in website.Modules.values():
-                module.CreateWebConfigSections(webConfigDocument, website.Databases)
+                module.CreateWebConfigSections(webConfigDocument, website)
 
             return webConfigDocument
 
