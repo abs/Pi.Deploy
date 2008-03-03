@@ -119,11 +119,11 @@ class DeployWebModule(DeployModule):
                     self.__ReadAuthenticationConfiguration(reader, website)
                         
                 if reader.NamespaceURI in Configuration.Modules: 
-
-                    handler = Configuration.Modules[reader.NamespaceURI]
+                    namespaceURI = reader.NamespaceURI
+                    handler = Configuration.Modules[namespaceURI]
                     handler.ReadConfiguration(reader, website)
 
-                    website.Modules[reader.NamespaceURI] = handler
+                    website.Modules[namespaceURI] = handler
 
                 
     def __ReadScriptMap(self, reader):
@@ -446,8 +446,8 @@ class DeployWebModule(DeployModule):
 
             print '    Modules:'
 
-            for module in website.Modules.values():
-                print '        Module            ' + str(module)
+            for uri, module in website.Modules.iteritems():
+                print '        Module            ' + uri + ', ' + str(module)
 
                 module.PrintConfiguration(website)
 

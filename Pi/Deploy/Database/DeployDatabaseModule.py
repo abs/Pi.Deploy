@@ -126,10 +126,11 @@ class DeployDatabaseModule(DeployModule):
                     self.__ReadHookConfiguration(reader, database)
 
                 if reader.NamespaceURI in Configuration.Modules: 
-                    handler = Configuration.Modules[reader.NamespaceURI]
+                    namespaceURI = reader.NamespaceURI
+                    handler = Configuration.Modules[namespaceURI]
                     handler.ReadConfiguration(reader, database)
 
-                    database.Modules[reader.NamespaceURI] = handler
+                    database.Modules[namespaceURI] = handler
 
 
     def __ReadHookConfiguration(self, reader, database):
@@ -180,8 +181,9 @@ class DeployDatabaseModule(DeployModule):
                 return
 
             if self.DatabaseExists(database) == True and database.CreateOnce == True:
+                print 'CreateOnce == True, skipping ...'
                 continue
-    
+
             if action & Action.DeleteDatabase:
                 self.DropDatabase(database)
 
@@ -214,7 +216,7 @@ class DeployDatabaseModule(DeployModule):
         print '    Server:            ' + database.Server
         print '    User:              ' + database.UserName
         print '    Password:          ' + database.Password
-        print '    Once:              ' + database.CreateOnce
+        print '    Once:              ' + str(database.CreateOnce)
         print '    Driver:            ' + database.Driver
 
         print '    SQL files:'
