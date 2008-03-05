@@ -181,7 +181,6 @@ class DeployDatabaseModule(DeployModule):
                 return
 
             if self.DatabaseExists(database) == True and database.CreateOnce == True:
-                print 'CreateOnce == True, skipping ...'
                 continue
 
             if action & Action.DeleteDatabase:

@@ -155,7 +155,7 @@ class DeployWebModule(DeployModule):
 
                 if reader.LocalName == AddElementName and reader.NamespaceURI == DeployWebNamespaceUri:
                     
-                    scriptMapsList.append(ReadScriptMap(reader))
+                    scriptMapsList.append(self.__ReadScriptMap(reader))
         
     def __ReadRoot(self, reader, files, directories):
 
