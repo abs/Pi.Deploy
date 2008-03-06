@@ -43,16 +43,19 @@ class DeployIisModule(DeployWebModule):
             webConfigDocument = System.Xml.XmlDocument()
             webConfigDocument.Load('%s\\%s' % (website.SourceRoot, website.SourceConfig))
 
-            connectionStringsNode = webConfigDocument.SelectSingleNode('/configuration/connectionStrings')
+            if hasattr(website, 'Databases'):
+                connectionStringsNode = webConfigDocument.SelectSingleNode('/configuration/connectionStrings')
 
-            if connectionStringsNode is not None:
-                addElement = webConfigDocument.CreateElement('add')
+                if connectionStringsNode is not None:
 
-                addElement.SetAttribute('name', '%s' % (website.Databases[0].Name))
+                    for database in website.Databases:
+                        addElement = webConfigDocument.CreateElement('add')
 
-                addElement.SetAttribute('connectionString', System.String.Format("Server={0};Database={1};Integrated Security='SSPI';", website.Databases[0].Server, website.Databases[0].Name))
+                        addElement.SetAttribute('name', '%s' % (database.Name))
 
-                connectionStringsNode.AppendChild(webConfigDocument.ImportNode(addElement, False))
+                        addElement.SetAttribute('connectionString', System.String.Format("Server={0};Database={1};Integrated Security='SSPI';", database.Server, database.Name))
+
+                        connectionStringsNode.AppendChild(webConfigDocument.ImportNode(addElement, False))
 
             for module in website.Modules.values():
                 module.CreateWebConfigSections(webConfigDocument, website)
