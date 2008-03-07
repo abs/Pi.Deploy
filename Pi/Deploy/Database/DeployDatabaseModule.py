@@ -56,7 +56,7 @@ class DeployDatabaseModule(DeployModule):
     def CreateWebConfigSections(self, document, configuration):
 
         if hasattr(configuration, 'Databases'):
-        
+
             for database in configuration.Databases:
 
                 for module in database.Modules.values():

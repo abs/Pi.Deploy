@@ -204,7 +204,7 @@ class DeployMsSqlModule(DeployDatabaseModule):
 
                     print connectionString
 
-            for module in configuration.Modules:
+            for module in configuration.Modules.values():
                 module.PopulateDatabase(configuration)
 
         except Exception, detail:
