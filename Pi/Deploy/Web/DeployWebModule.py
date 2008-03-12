@@ -175,6 +175,18 @@ class DeployWebModule(DeployModule):
             for directory in reader.ReadContentAsString().split():
                 directories.append(directory)
 
+    def __ReadDirectory(self, reader, directoriesDictionary):
+
+        sourceFiles = []
+
+        if reader.MoveToAttribute(SourceFilesAttributeName):
+            for file in reader.ReadContentAsString().split():
+                sourceFiles.append(file)
+
+            if reader.MoveToAttribute(NameAttributeName):
+                name = reader.ReadContentAsString()
+                directoriesDictionary[name] = sourceFiles
+
     def __ReadBin(self, reader, list):
 
         if reader.MoveToAttribute(SourceFilesAttributeName):

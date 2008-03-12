@@ -179,9 +179,9 @@ class DeployMsSqlModule(DeployDatabaseModule):
 
                 print 'Running %s ...' % (scriptPath)
 
-                try:
-                    f = open(scriptPath)
+                f = open(scriptPath)
 
+                try:
                     sql = ('use %s\ngo\n' % (configuration.Name)) + f.read()
 
                     for sqlCommand in sql.split('\ngo\n'):
