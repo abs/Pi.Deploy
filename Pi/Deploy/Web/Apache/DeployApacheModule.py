@@ -20,8 +20,17 @@ import System.Xml
 from Pi.Deploy.DeployModule import DeployModule
 from Pi.Deploy.Web.DeployWebModule import DeployWebModule
 
+
 class DeployApacheModule(DeployWebModule):
+
     def __init__(self): pass
+
+
+    def __GetNamespaceUri(self):
+        return 'http://schemas.peralta-informatics.com/Deploy/Web/Apache/2007'
+
+    
+    NamespaceUri = property(__GetNamespaceUri)
 
 
     def CreateApplication(self, website):

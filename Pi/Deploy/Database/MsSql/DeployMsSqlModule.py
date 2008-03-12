@@ -27,6 +27,13 @@ class DeployMsSqlModule(DeployDatabaseModule):
         pass
 
 
+    def __GetNamespaceUri(self):
+        return 'http://schemas.peralta-informatics.com/Deploy/Sql/MsSql/2007'
+
+    
+    NamespaceUri = property(__GetNamespaceUri)
+
+
     def DatabaseExists(self, configuration):
         exists = False
 

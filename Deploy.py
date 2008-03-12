@@ -19,8 +19,6 @@ import System.Collections.Generic
 import System.Text
 import System.Xml
 
-# sys.path.append("Deploy")
-
 PI_DEPLOY_HOME=os.environ.get('PI_DEPLOY_HOME')
 sys.path.append('%s/Pi' % (PI_DEPLOY_HOME))
 

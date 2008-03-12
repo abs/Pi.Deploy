@@ -32,6 +32,13 @@ class DeployIisModule(DeployWebModule):
     def __init__(self):
         pass
 
+    
+    def __GetNamespaceUri(self):
+        return 'http://schemas.peralta-informatics.com/Deploy/Web/Iis/2007'
+
+    
+    NamespaceUri = property(__GetNamespaceUri)
+
 
     def CreateWebConfig(self, website):
 

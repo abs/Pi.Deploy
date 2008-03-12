@@ -31,6 +31,13 @@ class DeployPostgreSqlModule(DeployDatabaseModule):
         pass
 
 
+    def __GetNamespaceUri(self):
+        return 'http://schemas.peralta-informatics.com/Deploy/Sql/PostgreSQL/2007'
+
+    
+    NamespaceUri = property(__GetNamespaceUri)
+
+
     def ReadConfiguration(self, reader, configuration, database = None):
 
         if not hasattr(configuration, 'Databases'):

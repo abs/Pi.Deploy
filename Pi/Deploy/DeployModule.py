@@ -28,3 +28,5 @@ class DeployModule(object):
     def PrintHelp(self): pass
     def PrintConfiguration(self, configuration): pass
 
+    NamespaceUri = property()
+

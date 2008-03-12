@@ -26,8 +26,6 @@ from DeployDatabaseConfiguration import DatabaseConfiguration
 
 
 
-DeploySqlNamespaceUri                = 'http://schemas.peralta-informatics.com/Deploy/Sql/2007'
-
 SourceFilesAttributeName             = 'SourceFiles'
 DirectoriesAttributeName             = 'Directories'
 
@@ -70,7 +68,7 @@ class DeployDatabaseModule(DeployModule):
 
         if reader.NodeType == System.Xml.XmlNodeType.Element: 
 
-            if reader.LocalName == DatabaseElementName and reader.NamespaceURI == DeploySqlNamespaceUri:
+            if reader.LocalName == DatabaseElementName and reader.NamespaceURI == self.NamespaceUri:
 
                 if database == None:
                     database = DatabaseConfiguration()
@@ -122,7 +120,7 @@ class DeployDatabaseModule(DeployModule):
 
             if reader.NodeType == System.Xml.XmlNodeType.Element:
 
-                if reader.LocalName == HooksElementName and reader.NamespaceURI == DeploySqlNamespaceUri:
+                if reader.LocalName == HooksElementName and reader.NamespaceURI == self.NamespaceUri:
                     self.__ReadHookConfiguration(reader, database)
 
                 if reader.NamespaceURI in Configuration.Modules: 
@@ -142,7 +140,7 @@ class DeployDatabaseModule(DeployModule):
 
             if reader.NodeType == System.Xml.XmlNodeType.Element:
 
-                if reader.LocalName == HookElementName and reader.NamespaceURI == DeploySqlNamespaceUri:
+                if reader.LocalName == HookElementName and reader.NamespaceURI == self.NamespaceUri:
 
                     hook = DatabaseConfiguration.HookConfiguration()
 

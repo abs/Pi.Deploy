@@ -26,8 +26,6 @@ from Pi.Deploy.DeployModule import DeployModule
 from Pi.Deploy.Web.DeployWebsiteConfiguration import WebsiteConfiguration
 
 
-DeployWebNamespaceUri                = 'http://schemas.peralta-informatics.com/Deploy/Web/2007'
-
 WebsiteElementName                   = 'Website'
 NameAttributeName                    = 'Name'
 
@@ -57,17 +55,27 @@ AuthenticationTypeAttributeName      = 'Type'
 
 
 class DeployWebModule(DeployModule):
+
     def __init__(self):
         pass
 
+
+    def __GetNamespaceUri(self):
+        return 'http://schemas.peralta-informatics.com/Deploy/Web/2007'
+
+    
+    NamespaceUri = property(__GetNamespaceUri)
+
+
     def ReadConfiguration(self, reader, configuration):
-        
+
         if not hasattr(configuration, 'Websites'):
             configuration.Websites = []
 
+
         if reader.NodeType == System.Xml.XmlNodeType.Element: 
 
-            if reader.LocalName == WebsiteElementName and reader.NamespaceURI == DeployWebNamespaceUri:
+            if reader.LocalName == WebsiteElementName and reader.NamespaceURI == self.NamespaceUri:
                 website = WebsiteConfiguration()
 
                 configuration.Websites.Add(website)
@@ -103,19 +111,19 @@ class DeployWebModule(DeployModule):
 
             if reader.NodeType == System.Xml.XmlNodeType.Element:
 
-                if reader.LocalName == ScriptMapsElementName and reader.NamespaceURI == DeployWebNamespaceUri:
+                if reader.LocalName == ScriptMapsElementName and reader.NamespaceURI == self.NamespaceUri:
                     self.__ReadScriptMaps(reader, website.ScriptMaps)
 
-                if reader.LocalName == RootElementName and reader.NamespaceURI == DeployWebNamespaceUri:
+                if reader.LocalName == RootElementName and reader.NamespaceURI == self.NamespaceUri:
                     self.__ReadRoot(reader, website.RootFiles, website.RootDirectories)
                     
-                if reader.LocalName == DirectoryElementName and reader.NamespaceURI == DeployWebNamespaceUri:
+                if reader.LocalName == DirectoryElementName and reader.NamespaceURI == self.NamespaceUri:
                     self.__ReadDirectory(reader, website.DirectoriesDictionary)
 
-                if reader.LocalName == BinElementName and reader.NamespaceURI == DeployWebNamespaceUri:
+                if reader.LocalName == BinElementName and reader.NamespaceURI == self.NamespaceUri:
                     self.__ReadBin(reader, website.BinFiles)
                     
-                if reader.LocalName == AuthenticationElementName and reader.NamespaceURI == DeployWebNamespaceUri:
+                if reader.LocalName == AuthenticationElementName and reader.NamespaceURI == self.NamespaceUri:
                     self.__ReadAuthenticationConfiguration(reader, website)
                         
                 if reader.NamespaceURI in Configuration.Modules: 
@@ -153,7 +161,7 @@ class DeployWebModule(DeployModule):
 
             if reader.NodeType == System.Xml.XmlNodeType.Element:
 
-                if reader.LocalName == AddElementName and reader.NamespaceURI == DeployWebNamespaceUri:
+                if reader.LocalName == AddElementName and reader.NamespaceURI == self.NamespaceUri:
                     
                     scriptMapsList.append(self.__ReadScriptMap(reader))
         
@@ -390,6 +398,9 @@ class DeployWebModule(DeployModule):
 
     def PrintConfiguration(self, configuration):
 
+        if not hasattr(configuration, 'Websites'):
+            return
+    
         for website in configuration.Websites:
 
             print '>> Website'
