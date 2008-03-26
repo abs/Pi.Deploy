@@ -24,6 +24,7 @@ from Pi.Deploy.DeployAction import Action
 from Pi.Deploy.DeployConfiguration import Configuration
 from Pi.Deploy.DeployModule import DeployModule
 from Pi.Deploy.Web.DeployWebsiteConfiguration import WebsiteConfiguration
+from Pi.Deploy import DeployUtilities
 
 
 WebsiteElementName                   = 'Website'
@@ -399,7 +400,40 @@ class DeployWebModule(DeployModule):
 
                 if action & Action.UpdateWebConfig:
                     self.RecycleAppPool(website)
-                
+
+                if action & Action.BuildReleaseBundle:
+                    website.ReleaseLabel = configuration.ReleaseLabel
+                    releaseLabel = configuration.ReleaseLabel
+
+                    releaseDirectoryName = '%s-release-%s' % (website.SourceRoot, releaseLabel)
+
+                    print 'Building release bundle %s' % (releaseDirectoryName)
+
+                    releaseDirectoryInfo = System.IO.DirectoryInfo(releaseDirectoryName)
+
+                    if releaseDirectoryInfo.Exists is True:
+                        releaseDirectoryInfo.Delete(True)
+
+                    releaseDirectoryInfo.Create()
+
+                    website.ApplicationName = releaseDirectoryName
+                    website.TargetPath = '.'
+
+                    self.CopyFiles(website)   
+
+                    os.chdir(releaseDirectoryName)
+
+                    DeployUtilities.RunExternalCommand('zip', System.String.Format('-r {0}.zip *', releaseDirectoryName))
+
+                    os.chdir('..')
+
+                    releasesDirectoryInfo = System.IO.DirectoryInfo('releases')
+
+                    if releasesDirectoryInfo.Exists is not True:
+                        releasesDirectoryInfo.Create()
+
+                    shutil.move(System.String.Format('{0}/{0}.zip', releaseDirectoryName), 'releases')
+
                 for module in website.Modules.values():
                     module.Execute(website, action)
 

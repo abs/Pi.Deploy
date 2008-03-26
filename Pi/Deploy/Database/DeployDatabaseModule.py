@@ -188,12 +188,44 @@ class DeployDatabaseModule(DeployModule):
                 self.BuildDatabase(database)
                 self.PopulateDatabase(database)
 
+            if action & Action.BuildReleaseBundle:
+                releaseLabel = configuration.ReleaseLabel
+
+                for database in configuration.Databases:
+
+                    releaseDirectoryName = '%s-release-%s' % (database.Name, releaseLabel)
+
+                    print 'Building release DB bundle %s' % (releaseDirectoryName)
+
+                    releaseDirectoryInfo = System.IO.DirectoryInfo(releaseDirectoryName)
+
+                    if releaseDirectoryInfo.Exists is True:
+                        releaseDirectoryInfo.Delete(True)
+
+                    releaseDirectoryInfo.Create()
+
+                    for encodedScriptPath in database.Scripts:
+                        scriptPath = DeployUtilities.ExpandEnvironmentVariables(encodedScriptPath)
+                        shutil.copy(scriptPath, releaseDirectoryName) 
+
+                    os.chdir(releaseDirectoryName)
+
+                    DeployUtilities.RunExternalCommand('zip', System.String.Format('-r {0}.zip *', releaseDirectoryName))
+
+                    os.chdir('..')
+
+                    releasesDirectoryInfo = System.IO.DirectoryInfo('releases')
+
+                    if releasesDirectoryInfo.Exists is not True:
+                        releasesDirectoryInfo.Create()
+
+                    shutil.move(System.String.Format('{0}/{0}.zip', releaseDirectoryName), 'releases')
+
 
     def PrintConfiguration(self, configuration, database = None):
 
         if not hasattr(configuration, 'Databases'):
             return
-
 
         if database == None:
 

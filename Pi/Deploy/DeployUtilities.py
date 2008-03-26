@@ -47,7 +47,6 @@ def ExpandEnvironmentVariables(encodedString):
 
         if environmentVariableValue is not None:
             encodedString = encodedString.replace('%%%s%%' % (environmentVariable), environmentVariableValue)
-
     
     return encodedString.replace('\\', '/')
 

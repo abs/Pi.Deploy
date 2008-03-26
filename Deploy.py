@@ -130,7 +130,7 @@ def __PrintHelp(configuration):
     print 'ipy Deploy.py <configuration file> UpdateWebConfig'
     print 'ipy Deploy.py <configuration file> DeleteWebsite'
     print 'ipy Deploy.py <configuration file> PushFiles'
-    print 'ipy Deploy.py <configuration file> BuildReleaseBundle <release label>'
+    print 'ipy Deploy.py <configuration file> BuildReleaseBundle <release label (use svn revision)>'
     print 'ipy Deploy.py <configuration file> Info'
     print 'ipy Deploy.py <configuration file> Help'
 
@@ -140,6 +140,8 @@ def __PrintHelp(configuration):
 
 def ParseArguments():
     action = Action.Empty
+
+    args = []
 
     actionString = None
 
@@ -184,16 +186,25 @@ def ParseArguments():
     if actionString == 'BuildReleaseBundle':
         action |= Action.BuildReleaseBundle
 
+        if len(sys.argv) >= 4:
+            args.append(sys.argv[3])
+
+        else:
+            raise System.Exception('Parameter missing: release label.')
+
     if actionString == 'Info':
         action |= Action.Info
 
 
-    return action
+    return action, args
 
 
 def main():
     try:
-        action = ParseArguments()
+        actionArgs = ParseArguments()
+
+        action = actionArgs[0]
+        args = actionArgs[1]
 
         configuration = ReadConfiguration(sys.argv[1])
 
@@ -204,10 +215,8 @@ def main():
         if action & Action.Info:
             __PrintConfiguration(configuration)
 
-        if action & Action.BuildReleaseBundle:
-            pass
-
         for namepsace, handler in configuration.Modules.iteritems():
+            configuration.ReleaseLabel = args[0]
             handler.Execute(configuration, action)
 
     except Exception, e:
