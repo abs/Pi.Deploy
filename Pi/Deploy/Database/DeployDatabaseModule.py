@@ -178,13 +178,19 @@ class DeployDatabaseModule(DeployModule):
                 print 'Skipping database deployment ...'
                 return
 
-            if self.DatabaseExists(database) == True and database.CreateOnce == True:
-                continue
 
             if action & Action.DeleteDatabase:
+
+                if self.DatabaseExists(database) == True and database.CreateOnce == True:
+                    continue
+
                 self.DropDatabase(database)
 
             if action & Action.DeployDatabase:
+
+                if self.DatabaseExists(database) == True and database.CreateOnce == True:
+                    continue
+
                 self.BuildDatabase(database)
                 self.PopulateDatabase(database)
 

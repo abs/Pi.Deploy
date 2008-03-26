@@ -350,7 +350,7 @@ class DeployWebModule(DeployModule):
             raise
 
 
-    def WriteWebConfig(self, webConfigDocument, website):
+    def WriteWebConfig(self, webConfigDocument, website, localOnly = False):
         print 'Writing web config ...'
 
         xmlWriterSettings = System.Xml.XmlWriterSettings()
@@ -366,13 +366,15 @@ class DeployWebModule(DeployModule):
         webConfigDocument.Save(xmlWriter)
         xmlWriter.Flush()
 
-        xmlWriter = System.Xml.XmlWriter.Create('%s/%s/Web.config' % (website.TargetPath, website.ApplicationName), xmlWriterSettings)
+        if localOnly == False:
+            xmlWriter = System.Xml.XmlWriter.Create('%s/%s/Web.config' % (website.TargetPath, website.ApplicationName), xmlWriterSettings)
 
-        webConfigDocument.Save(xmlWriter)
-        xmlWriter.Flush()
+            webConfigDocument.Save(xmlWriter)
+            xmlWriter.Flush()
 
 
     def Execute(self, configuration, action):
+
         try:
 
             if not hasattr(configuration, 'Websites'):
@@ -386,11 +388,17 @@ class DeployWebModule(DeployModule):
                 if action & Action.PushFiles:
                     self.CopyFiles(website)
 
-                if action & Action.UpdateWebConfig or action & Action.CreateWebsite:
+                if action & Action.UpdateWebConfig or action & Action.CreateWebsite or action & Action.BuildReleaseBundle:
                     webConfigDocument = self.CreateWebConfig(website)
 
                     if webConfigDocument != None:
-                        self.WriteWebConfig(webConfigDocument, website)
+
+                        localOnly = False
+                        
+                        if action & Action.BuildReleaseBundle:
+                            localOnly = True
+
+                        self.WriteWebConfig(webConfigDocument, website, localOnly = localOnly)
 
                     else:
                         print 'Web.config is None'
