@@ -215,8 +215,10 @@ def main():
         if action & Action.Info:
             __PrintConfiguration(configuration)
 
-        for namepsace, handler in configuration.Modules.iteritems():
+        if action & Action.BuildReleaseBundle:
             configuration.ReleaseLabel = args[0]
+
+        for namepsace, handler in configuration.Modules.iteritems():
             handler.Execute(configuration, action)
 
     except Exception, e:
