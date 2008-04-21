@@ -429,6 +429,12 @@ class DeployWebModule(DeployModule):
 
                     self.CopyFiles(website)   
 
+                    if webConfigDocument != None:
+                        print 'Copying %s/Web.config to %s' % (website.SourceRoot, releaseDirectoryInfo.FullPath)
+
+                        webConfigFile = System.IO.FileInfo('%s/Web.config' % (website.SourceRoot))
+                        webConfigFile.CopyTo('%s/Web.config' % (releaseDirectoryInfo.FullPath), True)
+
                     os.chdir(releaseDirectoryName)
 
                     DeployUtilities.RunExternalCommand('zip', System.String.Format('-r {0}.zip *', releaseDirectoryName))

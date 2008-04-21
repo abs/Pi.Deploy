@@ -145,8 +145,16 @@ class DeployIisModule(DeployWebModule):
             appPool = self.__FindByName(appPools.Children, website.ApplicationName)
 
             if appPool is not None:
-                appPool.Invoke('Recycle')
-                print 'Recycling %s app pool ...' % (website.ApplicationName)
+
+                try:
+                    appPool.Invoke('Recycle')
+                    print 'Recycling %s app pool ...' % (website.ApplicationName)
+
+                except System.Runtime.InteropServices.COMException:
+                    pass
+
+                except System.Reflection.TargetInvocationException:
+                    pass
 
 
     def CreateApplication(self, website):
