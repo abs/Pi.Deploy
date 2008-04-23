@@ -34,6 +34,23 @@ class DeployMsSqlModule(DeployDatabaseModule):
     NamespaceUri = property(__GetNamespaceUri)
 
 
+    def CreateConnectionString(self, configuration):
+        connectionString = System.String.Format("Server={0};Database={1}", configuration.Server, configuration.Name)
+
+        if hasattr(configuration, 'IntegratedSecurity'):
+            connectionString = System.String.Format("{0};Integrated Security='{1}'", connectionString, configuration.IntegratedSecurity)
+
+        if hasattr(configuration, 'TrustedConnection'):
+            connectionString = System.String.Format("{0};Trusted_Connection={1}", connectionString, configuration.TrustedConnection)
+        
+        if hasattr(configuration, 'ApplicationName'):
+            connectionString = System.String.Format("{0};Application Name={1}", connectionString, configuration.ApplicationName)
+
+        connectionString = System.String.Format("{0};", connectionString)
+
+        return connectionString
+
+
     def DatabaseExists(self, configuration):
         exists = False
 

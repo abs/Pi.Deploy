@@ -36,6 +36,9 @@ UserNameAttributeName                = 'UserName'
 PasswordAttributeName                = 'Password'
 CreateOnceAttributeName              = 'CreateOnce'
 DriverAttributeName                  = 'Driver'
+ApplicationNameAttributeName         = 'ApplicationName'
+IntegratedSecurityAttributeName      = 'IntegratedSecurity'
+TrustedConnectionAttributeName       = 'TrustedConnection'
 
 ScriptsElementName                   = 'Scripts'
 
@@ -86,6 +89,15 @@ class DeployDatabaseModule(DeployModule):
 
         if reader.MoveToAttribute(ServerAttributeName):
             database.Server = reader.ReadContentAsString()
+
+        if reader.MoveToAttribute(ApplicationNameAttributeName):
+            database.ApplicationName = reader.ReadContentAsString()
+
+        if reader.MoveToAttribute(IntegratedSecurityAttributeName):
+            database.IntegratedSecurity = reader.ReadContentAsString()
+
+        if reader.MoveToAttribute(TrustedConnectionAttributeName):
+            database.TrustedConnection = reader.ReadContentAsString()
 
         if reader.MoveToAttribute(UserNameAttributeName):
             database.UserName = reader.ReadContentAsString()

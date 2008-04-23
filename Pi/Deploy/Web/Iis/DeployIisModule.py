@@ -60,7 +60,11 @@ class DeployIisModule(DeployWebModule):
 
                         addElement.SetAttribute('name', '%s' % (database.Name))
 
-                        addElement.SetAttribute('connectionString', System.String.Format("Server={0};Database={1};Integrated Security='SSPI';", database.Server, database.Name))
+                        if hasattr(database, 'ConnectionString'):
+                            addElement.SetAttribute('connectionString', database.ConnectionString)
+
+                        else:
+                            addElement.SetAttribute('connectionString', System.String.Format("Server={0};Database={1};Integrated Security='SSPI';", database.Server, database.Name))
 
                         connectionStringsNode.AppendChild(webConfigDocument.ImportNode(addElement, False))
 
