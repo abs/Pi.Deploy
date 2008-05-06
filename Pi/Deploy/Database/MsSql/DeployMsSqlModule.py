@@ -7,6 +7,7 @@ import clr
 import sys
 import os
 import shutil
+import re
 
 clr.AddReference("System.Data")
 clr.AddReference("System.Xml")
@@ -190,6 +191,8 @@ class DeployMsSqlModule(DeployDatabaseModule):
         try:
             connection.Open()
 
+            goRegexp = re.compile(r'^go[ \t]*\n', re.IGNORECASE | re.MULTILINE | re.UNICODE)            
+
             for encodedScriptPath in configuration.Scripts:
 
                 scriptPath = DeployUtilities.ExpandEnvironmentVariables(encodedScriptPath)
@@ -199,44 +202,62 @@ class DeployMsSqlModule(DeployDatabaseModule):
                 f = open(scriptPath)
 
                 try:
-                    sql = ('use %s\ngo\n' % (configuration.Name)) + f.read()
+                    normalizedText = goRegexp.sub('go\n', f.read())
 
-                    for sqlCommand in sql.split('\ngo\n'):
-                        try:
-                            # print 'DEBUG: %s' % (sqlCommand)
-                            command = connection.CreateCommand()
-                            command.CommandText = sqlCommand 
-                            command.ExecuteNonQuery()
+                    sql = 'use %s\ngo\n%s' % (configuration.Name, normalizedText)
 
-                        finally:
-                            command.Dispose()
+                    for sqlCommand in goRegexp.split(sql):
+
+                        if len(sqlCommand.strip()) != 0:
+
+                            try:
+                                # print 'DEBUG: %s' % (sqlCommand)
+                                command = connection.CreateCommand()
+                                command.CommandText = sqlCommand 
+                                command.ExecuteNonQuery()
+
+                            finally:
+                                command.Dispose()
 
                 finally:
                     f.close()
 
-                connectionString = System.String.Format("\"Server={0};Database={1};Integrated Security='SSPI';\"", configuration.Server, configuration.Name)
+            for hook in configuration.Hooks:
 
-                for hook in configuration.Hooks:
+                try:
+                    startInfo = System.Diagnostics.ProcessStartInfo()
 
-                    process = System.Diagnostics.Process()
-                    process.StartInfo.FileName = hook.Executable
-                    process.StartInfo.Arguments = hook.Arguments + ' ' + connectionString
+                    startInfo.FileName = hook.Executable
+                    startInfo.Arguments = '"%s" %s' % (configuration.ConnectionString, hook.Arguments)
+                    startInfo.UseShellExecute = False
+                    startInfo.ErrorDialog = False
+                    startInfo.CreateNoWindow = True
+                    startInfo.RedirectStandardOutput = True
 
-                    process.Start()
-                    process.WaitForExit()
+                    process = System.Diagnostics.Process.Start(startInfo)
+                    outputReader = process.StandardOutput
+                    output = outputReader.ReadToEnd()
                     process.Close()
 
-                    print connectionString
+                    print output.replace('\r', '')
+
+                except System.ComponentModel.Win32Exception:
+                    print 'Could not open "%s".' % (hook.Executable)
+                    raise
+
+                else:
+                    print 'Ran hook "%s %s %s"' % (hook.Executable, configuration.ConnectionString, hook.Arguments)
 
             for module in configuration.Modules.values():
-                module.PopulateDatabase(configuration)
+                print module
+                # module.PopulateDatabase(configuration)
 
         except Exception, detail:
             print detail
             raise
 
         else:
-            print 'Populating database %s on %s' % (configuration.Name, configuration.Server)
+            print 'Populated database %s on %s' % (configuration.Name, configuration.Server)
             connection.Close()
 
 

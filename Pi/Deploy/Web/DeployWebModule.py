@@ -126,7 +126,7 @@ class DeployWebModule(DeployModule):
                     
                 if reader.LocalName == AuthenticationElementName and reader.NamespaceURI == self.NamespaceUri:
                     self.__ReadAuthenticationConfiguration(reader, website)
-                        
+
                 if reader.NamespaceURI in Configuration.Modules: 
                     namespaceURI = reader.NamespaceURI
                     handler = Configuration.Modules[namespaceURI]

@@ -39,6 +39,8 @@ DriverAttributeName                  = 'Driver'
 ApplicationNameAttributeName         = 'ApplicationName'
 IntegratedSecurityAttributeName      = 'IntegratedSecurity'
 TrustedConnectionAttributeName       = 'TrustedConnection'
+ConnectionNameAttributeName          = 'ConnectionName'
+ProviderAttributeName                = 'Provider'
 
 ScriptsElementName                   = 'Scripts'
 
@@ -99,6 +101,12 @@ class DeployDatabaseModule(DeployModule):
         if reader.MoveToAttribute(TrustedConnectionAttributeName):
             database.TrustedConnection = reader.ReadContentAsString()
 
+        if reader.MoveToAttribute(ConnectionNameAttributeName):
+            database.ConnectionName = reader.ReadContentAsString()
+
+        if reader.MoveToAttribute(ProviderAttributeName):
+            database.Provider = reader.ReadContentAsString()
+
         if reader.MoveToAttribute(UserNameAttributeName):
             database.UserName = reader.ReadContentAsString()
 
@@ -135,7 +143,7 @@ class DeployDatabaseModule(DeployModule):
                 if reader.LocalName == HooksElementName and reader.NamespaceURI == self.NamespaceUri:
                     self.__ReadHookConfiguration(reader, database)
 
-                if reader.NamespaceURI in Configuration.Modules: 
+                if reader.NamespaceURI != self.NamespaceUri and reader.NamespaceURI in Configuration.Modules: 
                     namespaceURI = reader.NamespaceURI
                     handler = Configuration.Modules[namespaceURI]
                     handler.ReadConfiguration(reader, database)
@@ -279,8 +287,8 @@ class DeployDatabaseModule(DeployModule):
 
         print '    Modules:'
 
-        for module in database.Modules.values():
-            print '        Module:            ' + str(module)
+        for uri, module in database.Modules.iteritems():
+            print '        Module:            ' + uri + ', ' + str(module)
 
             module.PrintConfiguration(database)
 

@@ -58,7 +58,14 @@ class DeployIisModule(DeployWebModule):
                     for database in website.Databases:
                         addElement = webConfigDocument.CreateElement('add')
 
-                        addElement.SetAttribute('name', '%s' % (database.Name))
+                        if hasattr(database, 'ConnectionName'):
+                            addElement.SetAttribute('name', database.ConnectionName)
+
+                        else:
+                            addElement.SetAttribute('name', '%s' % (database.Name))
+
+                        if hasattr(database, 'Provider'):
+                            addElement.SetAttribute('providerName', database.Provider)
 
                         if hasattr(database, 'ConnectionString'):
                             addElement.SetAttribute('connectionString', database.ConnectionString)
