@@ -89,6 +89,22 @@ class DeployMsSqlModule(DeployDatabaseModule):
 
 
     def DropDatabase(self, configuration):
+
+        for hook in configuration.Hooks:
+
+            if hook.BeforeDrop is True:
+
+                try:
+                    arguments = '%s "%s"' % (hook.Arguments, configuration.ConnectionString)
+                    DeployUtilities.RunExternalCommand(hook.Executable, arguments)
+
+                except System.ComponentModel.Win32Exception:
+                    print 'Could not open "%s".' % (hook.Executable)
+                    raise
+
+                else:
+                    print 'Ran hook [%s %s "%s"]' % (hook.Executable, hook.Arguments, configuration.ConnectionString)
+        
         connection = System.Data.SqlClient.SqlConnection()
         connection.ConnectionString = "Integrated Security=SSPI;Database=master;Server=%s" % (configuration.Server)
 
@@ -224,33 +240,21 @@ class DeployMsSqlModule(DeployDatabaseModule):
 
             for hook in configuration.Hooks:
 
-                try:
-                    startInfo = System.Diagnostics.ProcessStartInfo()
+                if hook.BeforeDrop is False:
 
-                    startInfo.FileName = hook.Executable
-                    startInfo.Arguments = '"%s" %s' % (configuration.ConnectionString, hook.Arguments)
-                    startInfo.UseShellExecute = False
-                    startInfo.ErrorDialog = False
-                    startInfo.CreateNoWindow = True
-                    startInfo.RedirectStandardOutput = True
+                    try:
+                        arguments = '%s "%s"' % (hook.Arguments, configuration.ConnectionString)
+                        DeployUtilities.RunExternalCommand(hook.Executable, arguments)
 
-                    process = System.Diagnostics.Process.Start(startInfo)
-                    outputReader = process.StandardOutput
-                    output = outputReader.ReadToEnd()
-                    process.Close()
+                    except System.ComponentModel.Win32Exception:
+                        print 'Could not open "%s".' % (hook.Executable)
+                        raise
 
-                    print output.replace('\r', '')
-
-                except System.ComponentModel.Win32Exception:
-                    print 'Could not open "%s".' % (hook.Executable)
-                    raise
-
-                else:
-                    print 'Ran hook "%s %s %s"' % (hook.Executable, configuration.ConnectionString, hook.Arguments)
+                    else:
+                        print 'Ran hook "%s %s %s"' % (hook.Executable, configuration.ConnectionString, hook.Arguments)
 
             for module in configuration.Modules.values():
-                print module
-                # module.PopulateDatabase(configuration)
+                module.PopulateDatabase(configuration)
 
         except Exception, detail:
             print detail
@@ -259,5 +263,4 @@ class DeployMsSqlModule(DeployDatabaseModule):
         else:
             print 'Populated database %s on %s' % (configuration.Name, configuration.Server)
             connection.Close()
-
 

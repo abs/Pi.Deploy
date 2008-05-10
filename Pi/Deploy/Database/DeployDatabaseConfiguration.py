@@ -11,6 +11,7 @@ class DatabaseConfiguration(object):
     class HookConfiguration(object):
         Executable = None
         Arguments = None
+        BeforeDrop = False
 
     def __init__(self):
         self.Name = None

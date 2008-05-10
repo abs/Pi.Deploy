@@ -46,8 +46,9 @@ ScriptsElementName                   = 'Scripts'
 
 HooksElementName                     = 'Hooks'
 HookElementName                      = 'Hook'
-ExecutableElementName                = 'Executable'
-ArgumentsElementName                 = 'Arguments'
+ExecutableAttributeName              = 'Executable'
+ArgumentsAttributeName               = 'Arguments'
+BeforeDropAttributeName              = 'BeforeDrop'
 
 
 class DeployDatabaseModule(DeployModule):
@@ -164,11 +165,14 @@ class DeployDatabaseModule(DeployModule):
 
                     hook = DatabaseConfiguration.HookConfiguration()
 
-                    if reader.MoveToAttribute(ExecutableElementName):
+                    if reader.MoveToAttribute(ExecutableAttributeName):
                         hook.Executable = reader.ReadContentAsString()
 
-                    if reader.MoveToAttribute(ArgumentsElementName):
+                    if reader.MoveToAttribute(ArgumentsAttributeName):
                         hook.Arguments = reader.ReadContentAsString()
+
+                    if reader.MoveToAttribute(BeforeDropAttributeName):
+                        hook.BeforeDrop = reader.ReadContentAsBoolean()
 
                     database.Hooks.Add(hook)
 
@@ -284,6 +288,7 @@ class DeployDatabaseModule(DeployModule):
         for hook in database.Hooks:
             print '        Hook:              ' + hook.Executable
             print '        Arguments:         ' + hook.Arguments
+            print '        BeforeDrop:        ' + str(hook.BeforeDrop)
 
         print '    Modules:'
 

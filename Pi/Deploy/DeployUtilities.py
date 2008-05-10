@@ -20,23 +20,38 @@ import System.Xml
 
 def RunExternalCommand(command, arguments, environmentVariables = None):
 
-    print 'Running %s %s' % (command, arguments)
+    print 'Starting external program: [%s] [%s]' % (command, arguments)
 
-    process = System.Diagnostics.Process()
-    process.StartInfo.FileName = command
-    process.StartInfo.Arguments = arguments
+    startInfo = System.Diagnostics.ProcessStartInfo()
+    startInfo.FileName = command
+    startInfo.Arguments = arguments
+    startInfo.UseShellExecute = False
+    startInfo.ErrorDialog = False
+    startInfo.CreateNoWindow = True
+    startInfo.RedirectStandardOutput = True
+    startInfo.RedirectStandardError = True
 
     if environmentVariables is not None:
-        process.StartInfo.UseShellExecute = False
 
         for name, value in environmentVariables.iteritems():
-            process.StartInfo.EnvironmentVariables[name] = value
+            startInfo.EnvironmentVariables[name] = value
 
-    process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden
+    process = System.Diagnostics.Process.Start(startInfo)
 
-    process.Start()
+    stdoutCharacterAsInteger = process.StandardOutput.Read()
+
+    while stdoutCharacterAsInteger != -1:
+        sys.stdout.write(chr(stdoutCharacterAsInteger))
+        stdoutCharacterAsInteger = process.StandardOutput.Read()
+
+    errorOutputReader = process.StandardError
+    errorOutput = errorOutputReader.ReadToEnd()
+
     process.WaitForExit()
     process.Close()
+
+    if len(errorOutput) != 0:
+        print errorOutput
 
 
 def ExpandEnvironmentVariables(encodedString):
