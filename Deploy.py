@@ -38,7 +38,6 @@ DepHandlerAttributeName                 = 'Handler'
 
 
 def ReadModule(reader, modules):
-    
     namespace = None
     handler = None
 
@@ -60,7 +59,6 @@ def ReadModule(reader, modules):
             deployModuleType = type('%sHandler' % (handler), (getattr(module, handler),), {})
 
             if issubclass(deployModuleType, DeployModule.DeployModule):
-
                 modules[namespace] = deployModuleType()
 
             else:
@@ -71,7 +69,6 @@ def ReadModule(reader, modules):
     
 
 def ReadModules(reader, modules):
-
     depth = reader.Depth
 
     while reader.Read() and reader.Depth > depth:
@@ -194,7 +191,6 @@ def ParseArguments():
 
     if actionString == 'Info':
         action |= Action.Info
-
 
     return action, args
 
