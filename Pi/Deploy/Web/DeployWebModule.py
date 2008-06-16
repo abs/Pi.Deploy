@@ -333,7 +333,7 @@ class DeployWebModule(DeployModule):
 
             for directoryName, files in website.DirectoriesDictionary.iteritems():
                 directory = System.IO.DirectoryInfo('%s/%s' % (website.SourceRoot, directoryName))
-                targetDirectory = System.IO.DirectoryInfo('%s/%s' % (targetRootDirectory, path.basename(directoryName)))
+                targetDirectory = System.IO.DirectoryInfo('%s/%s' % (targetRootDirectory, directoryName))
 
                 print "Copying '%s' directory to '%s'" % (directory.FullPath, targetDirectory.FullPath)
 
