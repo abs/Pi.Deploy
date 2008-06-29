@@ -79,7 +79,7 @@ class DeployWebModule(DeployModule):
             if reader.LocalName == WebsiteElementName and reader.NamespaceURI == self.NamespaceUri:
                 website = WebsiteConfiguration()
 
-                configuration.Websites.Add(website)
+                configuration.Websites.append(website)
 
                 self.__ReadWebsiteConfiguration(reader, website)
 

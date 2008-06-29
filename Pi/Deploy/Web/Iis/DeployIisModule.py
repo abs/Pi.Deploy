@@ -196,7 +196,7 @@ class DeployIisModule(DeployWebModule):
 
                         print 'Adding %s ...' % (scriptMapValue)
 
-                        property.Add(scriptMapValue)
+                        property.append(scriptMapValue)
 
                         application.Invoke("SetInfo")
 

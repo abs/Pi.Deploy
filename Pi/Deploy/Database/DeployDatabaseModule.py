@@ -78,7 +78,7 @@ class DeployDatabaseModule(DeployModule):
 
                 if database == None:
                     database = DatabaseConfiguration()
-                    configuration.Databases.Add(database)
+                    configuration.Databases.append(database)
 
                 self.__ReadDatabaseConfiguration(reader, database)
 
@@ -174,7 +174,7 @@ class DeployDatabaseModule(DeployModule):
                     if reader.MoveToAttribute(BeforeDropAttributeName):
                         hook.BeforeDrop = reader.ReadContentAsBoolean()
 
-                    database.Hooks.Add(hook)
+                    database.Hooks.append(hook)
 
     def CreateConnectionString(self, configuration):
         print 'Creating connection string (not implemented) ...'

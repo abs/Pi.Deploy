@@ -45,7 +45,7 @@ class DeployPostgreSqlModule(DeployDatabaseModule):
 
         if database == None:
             database = DatabaseConfiguration()
-            configuration.Databases.Add(database)
+            configuration.Databases.append(database)
 
         if reader.MoveToAttribute(NpgsqlLocationAttributeName):
             database.NpgsqlLocation = reader.ReadContentAsString()
