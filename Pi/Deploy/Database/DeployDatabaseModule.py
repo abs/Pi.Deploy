@@ -174,7 +174,7 @@ class DeployDatabaseModule(DeployModule):
                     if reader.MoveToAttribute(BeforeDropAttributeName):
                         hook.BeforeDrop = reader.ReadContentAsBoolean()
 
-                    database.Hooks.append(hook)
+                    database.Hooks.Add(hook)
 
     def CreateConnectionString(self, configuration):
         print 'Creating connection string (not implemented) ...'
