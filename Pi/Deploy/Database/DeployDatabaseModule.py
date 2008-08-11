@@ -30,6 +30,7 @@ SourceFilesAttributeName             = 'SourceFiles'
 DirectoriesAttributeName             = 'Directories'
 
 DatabaseElementName                  = 'Database'
+RefAttributeName                     = 'Ref'
 NameAttributeName                    = 'Name'
 ServerAttributeName                  = 'Server'
 UserNameAttributeName                = 'UserName'
@@ -52,6 +53,7 @@ BeforeDropAttributeName              = 'BeforeDrop'
 
 
 class DeployDatabaseModule(DeployModule):
+    Databases = {}
 
     def __init__(self):
         pass
@@ -68,7 +70,7 @@ class DeployDatabaseModule(DeployModule):
 
 
     def ReadConfiguration(self, reader, configuration, database = None):
-        
+
         if not hasattr(configuration, 'Databases'):
             configuration.Databases = []
 
@@ -76,13 +78,28 @@ class DeployDatabaseModule(DeployModule):
 
             if reader.LocalName == DatabaseElementName and reader.NamespaceURI == self.NamespaceUri:
 
-                if database == None:
-                    database = DatabaseConfiguration()
-                    configuration.Databases.append(database)
+                if reader.MoveToAttribute(RefAttributeName):
+                    ref = reader.ReadContentAsString()
 
-                self.__ReadDatabaseConfiguration(reader, database)
+                    if ref not in self.__class__.Databases:
+                        raise Exception('Found invalid database reference: "%s" in "%s"' % (ref, configuration))
 
-                database.ConnectionString = self.CreateConnectionString(database)
+                    else:
+                        print 'Added database reference "%s" to "%s"' % (ref, configuration)
+                        database = self.__class__.Databases[ref]
+                        configuration.Databases.append(database)
+                
+                else:
+
+                    if database is None:
+                        database = DatabaseConfiguration()
+                        configuration.Databases.append(database)
+
+                    self.__ReadDatabaseConfiguration(reader, database)
+
+                    database.ConnectionString = self.CreateConnectionString(database)
+
+                    self.__class__.Databases[database.Name] = database
 
 
     def __ReadDatabaseConfiguration(self, reader, database):
@@ -197,6 +214,12 @@ class DeployDatabaseModule(DeployModule):
             return
 
         for database in configuration.Databases:
+
+            if hasattr(database, 'Executed'):
+                continue
+
+            else:
+                database.Executed = True
 
             if action & Action.SkipDatabase: 
                 print 'Skipping database deployment ...'

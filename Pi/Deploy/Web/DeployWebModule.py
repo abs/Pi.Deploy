@@ -227,6 +227,7 @@ class DeployWebModule(DeployModule):
 
 
     def CreateWebConfig(self, website):
+
         if website.SourceConfig is None: return None
 
         print 'Creating Web.config file for %s on %s' % (website.ApplicationName, website.TargetPath)

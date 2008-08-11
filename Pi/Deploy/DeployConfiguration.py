@@ -9,6 +9,6 @@ class Configuration(object):
     def __init__(self):
         pass
 
-
+    Databases = []
     Modules = {}
 
