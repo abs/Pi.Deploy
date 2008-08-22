@@ -215,25 +215,31 @@ class DeployDatabaseModule(DeployModule):
 
         for database in configuration.Databases:
 
+            if action.Workflow & Action.OnlyMe:
+
+                if action.Name != database.Name:
+                    print 'Skipping "%s" because of --only-me=%s option ...' % (database.Name, action.Name)
+                    continue
+
             if hasattr(database, 'Executed'):
                 continue
 
             else:
                 database.Executed = True
 
-            if action & Action.SkipDatabase: 
+            if action.Workflow & Action.SkipDatabase: 
                 print 'Skipping database deployment ...'
                 return
 
 
-            if action & Action.DeleteDatabase:
+            if action.Workflow & Action.DeleteDatabase:
 
                 if self.DatabaseExists(database) == True and database.CreateOnce == True:
                     continue
 
                 self.DropDatabase(database)
 
-            if action & Action.DeployDatabase:
+            if action.Workflow & Action.DeployDatabase:
 
                 if self.DatabaseExists(database) == True and database.CreateOnce == True:
                     continue
@@ -241,7 +247,7 @@ class DeployDatabaseModule(DeployModule):
                 self.BuildDatabase(database)
                 self.PopulateDatabase(database)
 
-            if action & Action.BuildReleaseBundle:
+            if action.Workflow & Action.BuildReleaseBundle:
                 releaseLabel = configuration.ReleaseLabel
 
                 for database in configuration.Databases:

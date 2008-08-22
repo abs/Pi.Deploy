@@ -4,12 +4,13 @@
 #
 
 import clr
-import sys
+import imp
+import getopt
+import new
 import os
 import shutil
-import imp
-import new
 import string
+import sys
 
 from os import path
 
@@ -35,7 +36,7 @@ DepModuleElementName                    = 'Module'
 DepNamespaceAttributeName               = 'Namespace'
 DepImportAttributeName                  = 'Import'
 DepHandlerAttributeName                 = 'Handler' 
-
+DepNameAttributeName                    = 'Name'
 
 def ReadModule(reader, modules):
     namespace = None
@@ -119,26 +120,30 @@ def __PrintConfiguration(configuration):
             handler.PrintConfiguration(configuration)
 
 
-def __PrintHelp(configuration):
+def __PrintHelp(configuration = None):
     print ''
     print 'Command line options:'
-    print 'ipy Deploy.py <configuration file> Deploy [--skip-database]'
+    print 'ipy Deploy.py <configuration file> Deploy [--skip-database] [--only-me={deployment name}]'
     print 'ipy Deploy.py <configuration file> DeployDatabase'
     print 'ipy Deploy.py <configuration file> UpdateWebConfig'
     print 'ipy Deploy.py <configuration file> DeleteWebsite'
     print 'ipy Deploy.py <configuration file> PushFiles'
-    print 'ipy Deploy.py <configuration file> BuildReleaseBundle <release label (use svn revision)>'
+    print 'ipy Deploy.py <configuration file> BuildReleaseBundle <--release-label={your label (e.g. use svn revision number)}>'
     print 'ipy Deploy.py <configuration file> Info'
     print 'ipy Deploy.py <configuration file> Help'
 
-    for handler in configuration.Modules.values():
-        handler.PrintHelp()
+    if configuration is not None:
+
+        for handler in configuration.Modules.values():
+            handler.PrintHelp()
     
+    sys.exit(2)
+
 
 def ParseArguments():
-    action = Action.Empty
+    action = Action()
 
-    args = []
+    action.Workflow = Action.Empty
 
     actionString = None
 
@@ -149,70 +154,85 @@ def ParseArguments():
         actionString = sys.argv[2]
 
         if len(actionString) == 0:
-            action |= Action.Help
+            action.Workflow |= Action.Help
 
-    for arg in sys.argv:
-        if arg == '--skip-database':
-            action |= Action.SkipDatabase
+    if len(sys.argv) >= 4:
+
+        try:
+            options, theirValues = getopt.getopt(sys.argv[3:], 'h', ['skip-database', 'only-me=', 'help', 'release-label='])
+
+            for o, a in options:
+                
+                if o in ('-h', '--help'):
+                    __PrintHelp()
+
+                elif o == '--skip-database':
+                    action.Workflow |= Action.SkipDatabase
+
+                elif o == '--only-me':
+                    action.Workflow |= Action.OnlyMe
+                    action.Name = a
+
+                elif o == '--release-label':
+                    action.ReleaseLabel = a
+
+        except getopt.GetoptError, error:
+            print str(error)
+            __PrintHelp()
 
     if actionString == 'Help':
-        action |= Action.Help
+        action.Workflow |= Action.Help
 
     if actionString == 'DeployDatabase' or actionString == 'Deploy':
-        action |= Action.DeleteDatabase
-        action |= Action.DeployDatabase
+        action.Workflow |= Action.DeleteDatabase
+        action.Workflow |= Action.DeployDatabase
 
     if actionString == 'DeleteDatabase':
-        action |= Action.DeleteDatabase
+        action.Workflow |= Action.DeleteDatabase
 
     if actionString == 'Deploy': 
-        action |= Action.DeleteWebsite
-        action |= Action.CreateWebsite
-        action |= Action.PushFiles
-        action |= Action.UpdateWebConfig
+        action.Workflow |= Action.DeleteWebsite
+        action.Workflow |= Action.CreateWebsite
+        action.Workflow |= Action.PushFiles
+        action.Workflow |= Action.UpdateWebConfig
 
     if actionString == 'UpdateWebConfig':
-        action |= Action.UpdateWebConfig
+        action.Workflow |= Action.UpdateWebConfig
 
     if actionString == 'DeleteWebsite':
-        action |= Action.DeleteWebsite
+        action.Workflow |= Action.DeleteWebsite
 
     if actionString == 'PushFiles':
-        action |= Action.PushFiles
+        action.Workflow |= Action.PushFiles
     
     if actionString == 'BuildReleaseBundle':
-        action |= Action.BuildReleaseBundle
+        action.Workflow |= Action.BuildReleaseBundle
 
-        if len(sys.argv) >= 4:
-            args.append(sys.argv[3])
-
-        else:
-            raise System.Exception('Parameter missing: release label.')
+        if not hasattr(action, 'ReleaseLabel'):
+            print 'Parameter missing: --release-label.'
+            __PrintHelp()
 
     if actionString == 'Info':
-        action |= Action.Info
+        action.Workflow |= Action.Info
 
-    return action, args
+    return action
 
 
 def main():
     try:
-        actionArgs = ParseArguments()
-
-        action = actionArgs[0]
-        args = actionArgs[1]
+        action = ParseArguments()
 
         configuration = ReadConfiguration(sys.argv[1])
 
-        if action == Action.Empty or action & Action.Help:
+        if action.Workflow == Action.Empty or action.Workflow & Action.Help:
             __PrintHelp(configuration)
             return
 
-        if action & Action.Info:
+        if action.Workflow & Action.Info:
             __PrintConfiguration(configuration)
 
-        if action & Action.BuildReleaseBundle:
-            configuration.ReleaseLabel = args[0]
+        if action.Workflow & Action.BuildReleaseBundle:
+            configuration.ReleaseLabel = action.ReleaseLabel
 
         for namepsace, handler in configuration.Modules.iteritems():
             handler.Execute(configuration, action)

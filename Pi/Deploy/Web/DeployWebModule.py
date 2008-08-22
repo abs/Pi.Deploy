@@ -382,21 +382,27 @@ class DeployWebModule(DeployModule):
                 return
 
             for website in configuration.Websites:
+
+                if action.Workflow & Action.OnlyMe:
+
+                    if action.Name != website.Name:
+                        print 'Skipping "%s" because of --only-me=%s option ...' % (website.Name, action.Name)
+                        continue
     
-                if action & Action.DeleteWebsite:
+                if action.Workflow & Action.DeleteWebsite:
                     self.DeleteWebsite(website)
 
-                if action & Action.PushFiles:
+                if action.Workflow & Action.PushFiles:
                     self.CopyFiles(website)
 
-                if action & Action.UpdateWebConfig or action & Action.CreateWebsite or action & Action.BuildReleaseBundle:
+                if action.Workflow & Action.UpdateWebConfig or action.Workflow & Action.CreateWebsite or action.Workflow & Action.BuildReleaseBundle:
                     webConfigDocument = self.CreateWebConfig(website)
 
                     if webConfigDocument != None:
 
                         localOnly = False
                         
-                        if action & Action.BuildReleaseBundle:
+                        if action.Workflow & Action.BuildReleaseBundle:
                             localOnly = True
 
                         self.WriteWebConfig(webConfigDocument, website, localOnly = localOnly)
@@ -404,13 +410,13 @@ class DeployWebModule(DeployModule):
                     else:
                         print 'Web.config is None'
 
-                if action & Action.CreateWebsite:
+                if action.Workflow & Action.CreateWebsite:
                     self.CreateWebsite(website)
 
-                if action & Action.UpdateWebConfig:
+                if action.Workflow & Action.UpdateWebConfig:
                     self.RecycleAppPool(website)
 
-                if action & Action.BuildReleaseBundle:
+                if action.Workflow & Action.BuildReleaseBundle:
                     website.ReleaseLabel = configuration.ReleaseLabel
                     releaseLabel = configuration.ReleaseLabel
 

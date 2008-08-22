@@ -22,11 +22,12 @@ class DeployModule(object):
         pass
 
     def Execute(self, configuration, action): pass
-    def ReadConfiguration(self, reader, configurtion): pass
+    def ReadConfiguration(self, reader, configuration): pass
     def CreateWebConfigSections(self, webConfigDocument, configuration): pass
     def PopulateDatabase(self, database): pass
     def PrintHelp(self): pass
     def PrintConfiguration(self, configuration): pass
 
     NamespaceUri = property()
+    Name = property()
 

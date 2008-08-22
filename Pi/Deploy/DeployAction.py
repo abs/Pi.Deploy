@@ -4,7 +4,10 @@
 #
 
 class Action(object):
-    
+
+    def __init__(self):
+        self.Workflow = Action.Empty
+
     Empty               = 0x0
     Help                = 0x1
     DeployDatabase      = 0x2
@@ -16,4 +19,5 @@ class Action(object):
     BuildReleaseBundle  = 0x80
     Info                = 0x100
     PushFiles           = 0x200
+    OnlyMe              = 0x400
 
