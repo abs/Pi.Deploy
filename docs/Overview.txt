@@ -1,0 +1,195 @@
+Thu Aug 21 22:12:27 PDT 2008
+
+Pi.Deploy Overview
+------------------
+
+Authors: Eric Fikus, Andrei Soroker
+
+
+Contents
+--------
+
+    * 1 Preliminaries
+    * 2 Example
+    * 3 Running Pi.Deploy
+
+
+Preliminaries
+-------------
+
+Pi.Deploy is used to deploy assets (web sites, databases, etc.) to servers.  The software handles tasks such as creating web applications and databases, copying latest files, running SQL scripts, etc.  Pi.Deploy has built-in features to make it convenient to deploy to IIS, MS SQL Server, PostgreSQL, and Apache, and provides the ability to handle project-specific needs such as customizing configuration files based on deployment parameters.
+
+The configuration for a deployment is specified in an XML configuration file. Custom extensions to the software are written in IronPython. Custom configuration files are normally created by specifying a source configuration file, in which custom configuration values are not specified.  Pi.Deploy loads these files, add information as necessary, and write the results to an actual configuration file.
+
+Example
+-------
+
+The following listings show a deployment configuration file for the hypothetical Lunar Weather Service, and the IronPython script that updates configuration files with appropriate values.
+
+<?xml version="1.0" encoding="utf-8" ?>
+
+<dep:Deployment
+    xmlns:dep="http://schemas.peralta-informatics.com/Deploy/2007"
+    xmlns:web="http://schemas.peralta-informatics.com/Deploy/Web/Iis/2007"
+    xmlns:sql="http://schemas.peralta-informatics.com/Deploy/Sql/MsSql/2007">
+
+  <dep:Modules>
+    <dep:Module
+        Namespace="http://schemas.peralta-informatics.com/Deploy/Web/Iis/2007"
+        Import="Pi.Deploy.Web.Iis.DeployIisModule"
+        Handler="DeployIisModule" />
+    <dep:Module
+        Namespace="http://schemas.peralta-informatics.com/Deploy/Sql/MsSql/2007"
+        Import="Pi.Deploy.Database.MsSql.DeployMsSqlModule"
+        Handler="DeployMsSqlModule" />
+    <dep:Module
+        Namespace="http://schemas.lunar.gov/Services/Weather"
+        Import="DeployLunarWeatherModule"
+        Handler="DeployLunarWeatherModule" />
+  </dep:Modules>
+
+ <sql:Database
+    Name="LunarWeather0"
+    Server="dbserver0"
+    SourceFiles="sql/LunarWeather.sql"
+    IntegratedSecurity="SSPI" />
+
+  <web:Website
+    Name="Lunar.Services.Weather0"
+    TargetServer="wwwserver0"
+    TargetPath="\\wwwserver0\deploy"
+    TargetRoot="c:\deploy"
+    SourceRoot="Lunar.Services.Weather"
+    SourceConfig="Web.source.config" >
+
+    <sql:Database Ref="LunarWeather0" />
+
+    <web:Root
+        SourceFiles="index.html"
+        Directories="css js images">
+    </web:Root>
+
+    <tc:LunarWeather xmlns:tc="http://schemas.lunar.gov/Services/Lunar/Weather"
+        LunarSide="dark"
+    />
+
+  </web:Website>
+
+</dep:Deployment>
+
+Listing 1 Pi.Deploy deployment configuration file
+
+
+The configuration file contains three <dep:Module> elements. The first two refer to IIS and MS SQL Server deployment modules. The third one refers to a custom module. This module is defined in a IronPython file called DeployLunarWeatherModule.py (reproduced below).
+
+The <sql:Database> element defines the deployment configuration of a database, including its name, source files, and other attributes.  Pi.Deploy will attempt to remove this database and then re-create and re-populate it.
+
+The <web:Website> element configures an individual website. The SourceConfig attribute points to a Web.config file that will be updated by Pi.Deploy.  It also has attributes indicating the intended destination of the deployed files.  Its child element <web:Root> indicates the source files and directories to deploy.  Directories specified under <web:Root Directories="" /> are copied recursively with the exception of .svn files.  One way to deploy the entire source directory is to specify the following:
+
+    <web:Root
+        Directories=".">
+    </web:Root>
+
+
+The <sql:Database Ref="LunarWeather0"> element indicates that this website depends on a database called "LunarWeather0" (expected to have been defined earlier) --- with an ASP.NET deployment this will cause the Web.config file to be written with the correct connection string.
+
+The <tc:TestConfiguration> element is a custom element that is handled by the IronPython module registered under the "http://schemas.lunar.gov/Services/Weather" in the <dep:Modules> block.  When Pi.Deploy sees a block with a namespace mentioned in <dep:Modules>, it delegates the processing of that block to the appropriate module.
+
+
+import clr
+
+clr.AddReference('System.Xml')
+clr.AddReference("System.Data")
+
+import System.Data
+import System.Data.SqlClient
+import System.IO
+import System.Text
+import System.Xml
+
+import sys
+import os
+import shutil
+import types
+import time
+import datetime
+
+from os import path
+
+from Pi.Deploy.DeployAction import Action
+from Pi.Deploy.DeployModule import DeployModule
+from Pi.Deploy.Database.DeployDatabaseConfiguration import DatabaseConfiguration
+
+LunarSideAttributeName = "LunarSide" 
+
+DeployNamespaceUri = "http://schemas.lunar.gov/Services/Weather"
+
+class DeployLunarWeatherModule(DeployModule):
+    
+    def __init__(self):
+        pass
+
+
+    def ReadConfiguration(self, reader, configuration):
+
+        if reader.NamespaceURI == DeployNamespaceUri:
+
+            if reader.LocalName == TestConfigurationElementName:
+
+                if reader.MoveToAttribute(LunarSideAttributeName):
+                    configuration.LunarSide = reader.ReadContentAsString()
+
+
+    def CreateWebConfigSections(self, webConfigDocument, website):
+
+        if hasattr(website, 'LunarSide'):
+
+            appSettingsNode = webConfigDocument.SelectSingleNode('/configuration/appSettings')
+
+            configElement = webConfigDocument.CreateElement('add')
+            configElement.SetAttribute('key', 'LunarSide')
+            configElement.SetAttribute('value', value)
+            appSettingsNode.AppendChild(website.LunarSide)
+
+
+Listing 2 IronPython deployment script
+
+Listing 2 shows part of a IronPython script used to customize configuration files. The script modifies the Web.config file with an application-level parameter.
+
+The ReadConfiguration method is called by Pi.Deploy. Pi.Deploy builds up the configuration object while parsing the deployment configuration file.  The ReadConfiguration method in this script checks for the presence of our custom configuration attributes and updates the configuration object with these data.
+
+After the configuration file is read, Pi.Deploy calls CreateWebConfigSections with the configuration data (here given the name 'website').  Here we could take this opportunity to call arbitrary custom code.  Then we update the Web.config with parameters we need.
+
+Notes:
+
+    * One of the parameters to CreateWebConfigSections is an open XML document representing the Web.config file to be written. This document is opened by Pi.Deploy and later will be saved and closed by Pi.Deploy.  In our method we only make updates to the document.
+
+    * One of our requirements is to write a connection string to the Web.config file. This is handled automatically by Pi.Deploy using the database configuration information in the <sql:Database> block.  Our source web configuration only has an empty <connectionStrings/> element.
+
+
+
+Running Pi.Deploy
+-----------------
+
+This section describes how to run Pi.Deploy locally (i.e., not on the build server). This can be useful in order to test changes to the configuration file or to a IronPython script.
+
+   1. Obtain needed software
+
+         1. Download and install Python 2.5.x from http://www.python.org/
+
+         2. Download and install IronPython from http://www.codeplex.com/wiki/view.aspx?projectname=IronPython
+
+         3. Get Pi.Deploy from svn://peralta-informatics.com/Pi.Deploy
+
+            (e.g. svn co svn://peralta-informatics.com/Pi.Deploy)
+
+   2. Set up environment
+
+         1. Add IronPython directory containing ipy.exe to PATH.
+
+         2. Set environment variable PI_DEPLOY_HOME to top-level Pi.Deploy directory (directory containing Deploy.py).
+
+   3. Run command: ipy $PI_DEPLOY_HOME/Deploy.py <config file> <command>
+
+      Example: ipy $PI_DEPLOY_HOME/Deploy.py config/Eric0.config.xml Deploy
+
