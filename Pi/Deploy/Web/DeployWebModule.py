@@ -215,7 +215,7 @@ class DeployWebModule(DeployModule):
         if targetRootDirectory.Exists is True:
             targetRootDirectory.Delete(True)
 
-            print 'Deleting %s' % (targetRootDirectory.FullPath)
+            print 'Deleting %s' % (targetRootDirectory.FullName)
 
 
     def CreateWebsite(self, website):
@@ -269,14 +269,14 @@ class DeployWebModule(DeployModule):
         if directory.Name == '.svn':
             return
         
-        print "Copying '%s' directory to '%s'" % (directory.FullPath, targetDirectory.FullPath)
+        print "Copying '%s' directory to '%s'" % (directory.FullName, targetDirectory.FullName)
 
 
         if targetDirectory.Exists is not True:
             targetDirectory.Create()
 
         for file in directory.GetFiles():
-            file.CopyTo('%s/%s' % (targetDirectory.FullPath, file.Name), True)
+            file.CopyTo('%s/%s' % (targetDirectory.FullName, file.Name), True)
 
         for file in targetDirectory.GetFiles():
             file.Attributes = System.IO.FileAttributes.Normal
@@ -312,7 +312,7 @@ class DeployWebModule(DeployModule):
 
             for sourceFileName in website.RootFiles:
                 file = System.IO.FileInfo('%s/%s' % (website.SourceRoot, sourceFileName))
-                file.CopyTo('%s/%s' % (targetRootDirectory.FullPath, sourceFileName), True)
+                file.CopyTo('%s/%s' % (targetRootDirectory.FullName, sourceFileName), True)
                 print "Copying '%s'" % (file.Name)
 
             for file in targetRootDirectory.GetFiles():
@@ -320,7 +320,7 @@ class DeployWebModule(DeployModule):
 
             for sourceFileName in website.BinFiles:
                 file = System.IO.FileInfo('%s/bin/%s' % (website.SourceRoot, sourceFileName))
-                file.CopyTo('%s/%s' % (targetBinDirectory.FullPath, sourceFileName), True)
+                file.CopyTo('%s/%s' % (targetBinDirectory.FullName, sourceFileName), True)
                 print "Copying '%s'" % (file.Name)
 
             for file in targetBinDirectory.GetFiles():
@@ -336,7 +336,7 @@ class DeployWebModule(DeployModule):
                 directory = System.IO.DirectoryInfo('%s/%s' % (website.SourceRoot, directoryName))
                 targetDirectory = System.IO.DirectoryInfo('%s/%s' % (targetRootDirectory, directoryName))
 
-                print "Copying '%s' directory to '%s'" % (directory.FullPath, targetDirectory.FullPath)
+                print "Copying '%s' directory to '%s'" % (directory.FullName, targetDirectory.FullName)
 
                 if targetDirectory.Exists is not True:
                     targetDirectory.Create()
@@ -344,8 +344,8 @@ class DeployWebModule(DeployModule):
                 for fileName in files:
                     fileInfo = System.IO.FileInfo('%s/%s' % (directory.FullName, fileName))
 
-                    fileInfo.CopyTo('%s/%s' % (targetDirectory.FullPath, fileInfo.Name), True)
-                    print "Copying '%s' to '%s'" % (fileInfo.FullPath, targetDirectory.FullPath)
+                    fileInfo.CopyTo('%s/%s' % (targetDirectory.FullName, fileInfo.Name), True)
+                    print "Copying '%s' to '%s'" % (fileInfo.FullName, targetDirectory.FullName)
 
         except:
             raise
@@ -437,10 +437,10 @@ class DeployWebModule(DeployModule):
                     self.CopyFiles(website)   
 
                     if webConfigDocument != None:
-                        print 'Copying %s/Web.config to %s' % (website.SourceRoot, releaseDirectoryInfo.FullPath)
+                        print 'Copying %s/Web.config to %s' % (website.SourceRoot, releaseDirectoryInfo.FullName)
 
                         webConfigFile = System.IO.FileInfo('%s/Web.config' % (website.SourceRoot))
-                        webConfigFile.CopyTo('%s/Web.config' % (releaseDirectoryInfo.FullPath), True)
+                        webConfigFile.CopyTo('%s/Web.config' % (releaseDirectoryInfo.FullName), True)
 
                     os.chdir(releaseDirectoryName)
 
