@@ -11,6 +11,7 @@ import os
 import shutil
 import string
 import sys
+import traceback
 
 from os import path
 
@@ -240,12 +241,14 @@ def main():
     except Exception, e:
         print 'python exception:'
     
-        print e
+        exception = traceback.format_exc()
+
+        print exception
     
         return 1
 
     except System.Exception, e:
-        print e
+        print 'System.Exception'
 
         return 1
 
