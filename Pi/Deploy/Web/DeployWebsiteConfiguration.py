@@ -19,7 +19,6 @@ class WebsiteConfiguration(object):
 
     def __init__(self):
         self.Name = None
-        self.ApplicationName = None
         self.RootFiles = []
         self.RootDirectories = []
         self.BinFiles = []
