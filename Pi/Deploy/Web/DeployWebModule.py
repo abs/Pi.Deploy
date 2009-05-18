@@ -29,6 +29,7 @@ from Pi.Deploy import DeployUtilities
 
 WebsiteElementName                   = 'Website'
 NameAttributeName                    = 'Name'
+ApplicationNameAttributeName         = 'ApplicationName'
 
 SourceFilesAttributeName             = 'SourceFiles'
 DirectoriesAttributeName             = 'Directories'
@@ -88,6 +89,9 @@ class DeployWebModule(DeployModule):
 
         if reader.MoveToAttribute(NameAttributeName):
             website.Name = reader.ReadContentAsString()
+
+        if reader.MoveToAttribute(ApplicationNameAttributeName):
+            website.ApplicationName = reader.ReadContentAsString()
 
         if reader.MoveToAttribute(TargetServerAttributeName):
             website.TargetServer = reader.ReadContentAsString()
