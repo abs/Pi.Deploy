@@ -22,7 +22,7 @@ import System.Text
 import System.Xml
 
 PI_DEPLOY_HOME=os.environ.get('PI_DEPLOY_HOME')
-sys.path.append('%s/Pi' % (PI_DEPLOY_HOME))
+sys.path.append(os.path.join('PI_DEPLOY_HOME', 'Pi'))
 
 from Pi.Deploy import DeployUtilities
 from Pi.Deploy import DeployModule
@@ -56,7 +56,9 @@ def ReadModule(reader, modules):
             components = moduleName.split('.')
             name = components[len(components) - 1]
             sep = moduleName.replace('.', '/').rfind('/')
-            moduleInfo = imp.find_module(name, ['%s/%s' % (PI_DEPLOY_HOME, moduleName.replace('.', '/')[0:sep]), '.'])
+
+            moduleInfo = imp.find_module(name, [os.path.join(PI_DEPLOY_HOME, moduleName.replace('.', '/')[0:sep]), '.'])
+
             module = imp.load_module(moduleName, moduleInfo[0], moduleInfo[1], moduleInfo[2])
             deployModuleType = type('%sHandler' % (handler), (getattr(module, handler),), {})
 
@@ -82,28 +84,21 @@ def ReadModules(reader, modules):
                 
 
 def ReadConfiguration(configurationFile):
-    try:
-        configuration = Configuration()
+    configuration = Configuration()
 
-        reader = System.Xml.XmlReader.Create(configurationFile)
+    reader = System.Xml.XmlReader.Create(configurationFile)
 
-        depth = reader.Depth
+    depth = reader.Depth
 
-        while reader.Read():
+    while reader.Read():
 
-            if reader.NodeType == System.Xml.XmlNodeType.Element: 
+        if reader.NodeType == System.Xml.XmlNodeType.Element: 
 
-                if reader.LocalName == DepModulesElementName and reader.NamespaceURI == DeployNamespaceUri:
-                    ReadModules(reader, configuration.Modules)
+            if reader.LocalName == DepModulesElementName and reader.NamespaceURI == DeployNamespaceUri:
+                ReadModules(reader, configuration.Modules)
 
-                if reader.NamespaceURI in configuration.Modules:
-                    configuration.Modules[reader.NamespaceURI].ReadConfiguration(reader, configuration)
-
-    except Exception, e:
-        raise e
-
-    except System.Exception, e:
-        raise e
+            if reader.NamespaceURI in configuration.Modules:
+                configuration.Modules[reader.NamespaceURI].ReadConfiguration(reader, configuration)
 
     return configuration
 

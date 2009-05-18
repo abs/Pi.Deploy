@@ -131,6 +131,21 @@ class DeployPostgreSqlModule(DeployDatabaseModule):
         if not self.DatabaseExists(configuration):
             return
 
+        for hook in configuration.Hooks:
+
+            if hook.BeforeDrop is True:
+
+                try:
+                    arguments = '%s "%s"' % (hook.Arguments, configuration.ConnectionString)
+                    DeployUtilities.RunExternalCommand(hook.Executable, arguments)
+
+                except System.ComponentModel.Win32Exception:
+                    print 'Could not open "%s".' % (hook.Executable)
+                    raise
+
+                else:
+                    print 'Ran hook [%s %s "%s"]' % (hook.Executable, hook.Arguments, configuration.ConnectionString)
+
         connection = Npgsql.NpgsqlConnection()
         connection.ConnectionString = "Server=%s;Port=5432;User ID=%s;Password=%s;SSL=True;Sslmode=Require;Database=postgres" % (configuration.Server, configuration.UserName, configuration.Password)
 
@@ -223,6 +238,22 @@ class DeployPostgreSqlModule(DeployDatabaseModule):
             scriptPath = DeployUtilities.ExpandEnvironmentVariables(encodedScriptPath)
 
             DeployUtilities.RunExternalCommand('psql', '-q -d %s -h %s -U %s -f %s' % (configuration.Name, configuration.Server, configuration.UserName, encodedScriptPath), environmentVariables = environmentVariables)
+
+        for hook in configuration.Hooks:
+
+            if hook.BeforeDrop is False:
+
+                try:
+                    arguments = '%s "%s"' % (hook.Arguments, configuration.ConnectionString)
+                    DeployUtilities.RunExternalCommand(hook.Executable, arguments)
+
+                except System.ComponentModel.Win32Exception:
+                    print 'Could not open "%s".' % (hook.Executable)
+                    raise
+
+                else:
+                    print 'Ran hook "%s %s %s"' % (hook.Executable, configuration.ConnectionString, hook.Arguments)
+
 
         for module in configuration.Modules.values():
             module.PopulateDatabase(configuration)
