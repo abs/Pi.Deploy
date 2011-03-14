@@ -20,4 +20,3 @@ class Action(object):
     Info                = 0x100
     PushFiles           = 0x200
     OnlyMe              = 0x400
-

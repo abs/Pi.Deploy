@@ -64,4 +64,3 @@ def ExpandEnvironmentVariables(encodedString):
             encodedString = encodedString.replace('%%%s%%' % (environmentVariable), environmentVariableValue)
     
     return encodedString.replace('\\', '/')
-

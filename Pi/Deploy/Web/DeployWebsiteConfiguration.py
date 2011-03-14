@@ -49,4 +49,3 @@ class WebsiteConfiguration(object):
         self.Name = value
 
     ApplicationName = property(__GetApplicationName, __SetApplicationName)
-

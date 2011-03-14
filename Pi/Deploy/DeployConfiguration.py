@@ -11,4 +11,3 @@ class Configuration(object):
 
     Databases = []
     Modules = {}
-

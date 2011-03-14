@@ -30,4 +30,3 @@ class DeployModule(object):
 
     NamespaceUri = property()
     Name = property()
-

@@ -263,4 +263,3 @@ class DeployMsSqlModule(DeployDatabaseModule):
         else:
             print 'Populated database %s on %s' % (configuration.Name, configuration.Server)
             connection.Close()
-

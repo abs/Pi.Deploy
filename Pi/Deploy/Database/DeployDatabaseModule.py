@@ -325,4 +325,3 @@ class DeployDatabaseModule(DeployModule):
             print '        Module:            ' + uri + ', ' + str(module)
 
             module.PrintConfiguration(database)
-

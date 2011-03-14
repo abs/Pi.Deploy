@@ -23,4 +23,3 @@ class DatabaseConfiguration(object):
         self.CreateOnce = 'False'
         self.Driver = None
         self.Modules = {}
-

@@ -43,5 +43,3 @@ class DeployApacheModule(DeployWebModule):
     
     def DeleteApplication(self, website):
         print 'Deleting Apache application (not implemented)'
-
-
