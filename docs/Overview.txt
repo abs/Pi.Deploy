@@ -175,11 +175,12 @@ This section describes how to run Pi.Deploy locally (i.e., not on the build serv
 
    1. Obtain needed software
 
-         1. Download and install Python 2.5.x (>=) from http://www.python.org/
+         1. Download and install Python >= 2.5.x from http://www.python.org/
 
          2. Download and install IronPython from http://www.codeplex.com/wiki/view.aspx?projectname=IronPython
 
-         3. Get Pi.Deploy from git://github.com/abs/Pi.Deploy.git
+         3. Get Pi.Deploy: 
+                git clone git://github.com/abs/Pi.Deploy.git
 
    2. Set up environment
 
